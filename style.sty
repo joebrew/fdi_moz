@@ -5,7 +5,8 @@
 \usepackage{longtable}
 \usepackage{xcolor}
 \usepackage{adjustbox}
-
+\usepackage{longtable}
+\usepackage{multicol}
 
 \usepackage{tikz}
 \usetikzlibrary{shadows}
@@ -25,6 +26,12 @@
 
 \newcommand\mathplus{+}
 
+
+% PANDOC DOESN'T LIKE THINGS THAT HAVE
+% \BEGIN OR \END, SO WE MAKE OUR OWN COMMAND
+
+\newcommand{\columnsbegin}{\begin{multicols}{2}}
+\newcommand{\columnsend}{\end{multicols}}
 
 
 \renewcommand{\rmdefault}{ppl}
