@@ -1,0 +1,86 @@
+---
+title: Characterization of foreign direct investment in Mozambique and implications
+  for public health
+author: "Joe Brew and Elisa Sicuri"
+csl: health-economics-policy-and-law.csl
+output:
+  pdf_document:
+    includes:
+      in_header: style.sty
+  html_document: default
+highlight: zenburn
+latex_engine: xelatex
+header-includes: \usepackage{longtable}
+bibliography: ../fdi_moz.bib
+---
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, comment = NA, error= FALSE }
+# No scientific notation
+options(scipen=999)
+
+#####
+# PACKAGES
+#####
+library(dplyr)
+library(xtable)
+library(ggplot2)
+library(knitr)
+library(png)
+library(grid)
+library(extrafont)
+library(raster)
+library(rgdal)
+loadfonts(device = 'postscript', quiet = TRUE)
+
+# BASIC KNITR OPTIONS
+opts_chunk$set(comment = NA, echo = FALSE, warning = FALSE, message = FALSE, error = FALSE)
+options(xtable.comment = FALSE)
+```
+
+```{r}
+#####
+# GET MAPS OF MOZAMBIQUE
+#####
+setwd('data')
+# This will get three different administrative
+# levels of Mozambican shapefiles from the GADM database
+# using the raster library
+for (i in 0:3){
+  assign(paste0('moz', i),
+         getData('GADM', country = 'MOZ', level = i))
+}
+setwd('..')
+```
+
+```{r, fig.height = 3, fig.align='center'}
+plot(moz0)
+```
+
+## Introduction 
+Mozabique's recent economic growth has been facilitated by the government's open policy towards foreign investment, a plentiful supply of natural resources (particularly minerals and hydrocarbons) [@Rogers] and relatively inexpensive labor. Improvements in health have accompanied economic expansion, but Mozambique still lags behind in basic health outcomes - particularly those related to malaria - even by regional standards[@whostat]. Though strong evidence shows that improved health yields substantial economic benefits [@World1999, @Bloom2008], private foreign investment has played only a secondary role in malaria prevention and control in recent years. 
+
+Most of the malaria-related private investment in recent years has come in large, one-off projects which are well-publicized but difficult-to-reproduce [@rollback] or whose primary aim is social impact (not profit) [@Han]. However, the magnitude and kinds of recent foreign direct investment suggest the potential for a shift from a large-but-few to a small-but-numerous approach.  This shift, if carried out effectively, could be a "win-win" for business and public health.
+
+Given the rapidly changing economic and epidemiologic context in Mozambique, a comprehensive and current understanding of both (a) the landscape of foreign direct investment in Mozambique and (b) public health issues which directly affect those investments is sorely needed. Such an understanding may foster greater private interest in for-profit investment in public health measures. Likewise, it can facilitate better public sector understanding of potential industry partners and stakeholders, a prerequisite to greater public-private collaborations.
+
+This paper gives an overview of trends in foreign investment in Mozambique and their related public health issues. It is by no means comprehensive, but offers a consolidated starting point for understanding where the interests and incentives of the public and private sectors may converge.
+
+## Macroeconomic overview
+
+## Breakdown by industry
+
+## Current private investments in health
+
+## Potential for scaling-up collaboration
+
+Bla bla bla[@Unctad2012].  Bla bla bla.
+
+---
+nocite: | 
+  @Unctad2012
+...
+
+
+
+
+
