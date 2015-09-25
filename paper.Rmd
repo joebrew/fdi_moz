@@ -29,11 +29,18 @@ library(grid)
 library(extrafont)
 library(raster)
 library(rgdal)
+library(readxl)
+library(tidyr)
+library(readr)
+library(RColorBrewer)
 loadfonts(device = 'postscript', quiet = TRUE)
 
 # BASIC KNITR OPTIONS
 opts_chunk$set(comment = NA, echo = FALSE, warning = FALSE, message = FALSE, error = FALSE)
 options(xtable.comment = FALSE)
+
+# HELPER FUNCTIONS
+source('helpers.R')
 ```
 
 ```{r}
@@ -56,23 +63,217 @@ plot(moz0)
 ```
 
 
+
 ## Introduction
 
 \columnsbegin
 
+
 Mozabique's recent economic growth has been facilitated by the government's open policy towards foreign investment, a plentiful supply of natural resources (particularly minerals and hydrocarbons) [@Rogers] and relatively inexpensive labor. Improvements in health have accompanied economic expansion, but Mozambique still lags behind in basic health outcomes - particularly those related to malaria - even by regional standards[@whostat]. Though strong evidence shows that improved health yields substantial economic benefits [@World1999, @Bloom2008], private foreign investment has played only a secondary role in malaria prevention and control in recent years. 
 
-Most of the malaria-related private investment in recent years has come in large, one-off projects which are well-publicized but difficult-to-reproduce [@rollback] or whose primary aim is social impact (not profit) [@Han]. However, the magnitude and kinds of recent foreign direct investment suggest the potential for a shift from a large-but-few to a small-but-numerous approach.  This shift, if carried out effectively, could be a "win-win" for business and public health.
+Most of the malaria-related private investment in recent years has come in large, "mega-projects" whose malaria abatement activities are well-publicized but difficult-to-reproduce [@rollback] or whose primary aim is social impact (not profit) [@Han]. However, the magnitude and kinds of recent foreign direct investment suggest the potential for a shift from a large-but-few to a small-but-numerous approach.  This shift, if carried out effectively, could be a "win-win" for business and public health.
 
 Given the rapidly changing economic and epidemiologic context in Mozambique, a comprehensive and current understanding of both (a) the landscape of foreign direct investment in Mozambique and (b) public health issues which directly affect those investments is sorely needed. Such an understanding may foster greater private interest in for-profit investment in public health measures. Likewise, it can facilitate better public sector understanding of potential industry partners and stakeholders, a prerequisite to greater public-private collaborations.
 
 This paper gives an overview of trends in foreign investment in Mozambique and their related public health issues. It is by no means comprehensive, but offers a consolidated starting point for understanding where the interests and incentives of the public and private sectors may converge.
 
-\columnsend
-
 ## Macroeconomic overview
 
+Following independence (1974), Mozambique saw two decades of low and unsteady foreign investment, largely due to the civil war (which did not end until 1992).  Thereafter, foreign investment began a steady increase but leveled off by 2000.  However, the discovery of new sources of oil and gas set off a new spur of investments beginning in 2007.  From 2010 to 2013, foreign direct investment grew from 1.26 to 6.70 billion USD, a more than five-fold increase.  
+
+```{r}
+#####
+# READ IN WORLD BANK FOREIGN INVESTMENT DATA
+#####
+# http://data.worldbank.org/indicator/BX.KLT.DINV.CD.WD
+wb <- read_excel('data/bx.klt.dinv.cd.wd_Indicator_en_excel_v2.xls',
+                 skip = 3)
+wb <- data.frame(wb)
+names(wb[5:ncol(wb)]) <- paste0('y', names(wb[5:ncol(wb)]))
+
+# Clean up to just get mozambique
+temp <- gather(wb, year, value, X1961:X2015)
+# Clean up year column
+temp$year <- as.numeric(gsub('X', '', temp$year))
+# Subset to only include Mozambique
+temp <- temp[temp$Country.Name == 'Mozambique',]
+# Remove years without data
+temp <- temp[temp$year >= 1970 & temp$year <= 2014,]
+# temp <- temp[!is.na(temp$value),]
+
+#####
+# PLOT FOREIGN DIRECT INVESTMENT NET INFLOWS
+#####
+ggplot(data = temp, aes(x = year, y = value)) +
+  geom_point(alpha = 0.5, size = 2) +
+  geom_line(alpha = 0.5, size = 2) +
+  theme_bw() +
+  xlab('Year') +
+  ylab('Current USD (logarithmic scale)') +
+  scale_y_log10() +
+  ggtitle('Foreign direct investment: net inflows')
+```
+
+In addition to the discovery of new resources, recent growth has also been fueled by political and economic reforms which have made it easier for foreigners to do business in Mozambique.  Of particular note, inflation has remained relatively low, and the costs to import and export have decreased dramatically, as have the costs of starting a business and registering property.
+
+```{r, comment = NA, message = FALSE, results = 'hide'}
+######
+# READ IN DOING BUSINESS DATA
+#####
+db <- read_excel('data/doing_business.xls')
+
+# Clean up columns
+db <- data.frame(db)
+macro_names <- names(db)
+for (j in 1:length(macro_names)){
+  number <- j
+  while(grepl('Var', macro_names[number])){
+    number <- number -1
+  }
+  macro_names[j] <- macro_names[number]
+}
+micro_names <- as.character(db[1,])
+combined_names <- gsub(' ', '', paste0(macro_names, '..', ifelse(is.na(micro_names), '', micro_names)))
+# Remove extra columns and replace column names
+db <- db[-1,]
+names(db) <- combined_names
+
+# Clean up year
+db$year <- as.numeric(gsub('DB', '', db$Year.., fixed = TRUE))
+
+# Get my columns of interest
+db$cost_export_container <- db[,"Trading.Across.Borders..Costtoimport(deflatedUS$percontainer)"]
+db$start_business <- db[,"Starting.a.Business..Time(days)"]
+db$cost_import_container <- db[,"Trading.Across.Borders..Costtoimport(deflatedUS$percontainer)" ]
+db$register_property <- 
+  db[,"Registering.Property..Cost(%ofpropertyvalue)"]
+
+db <- db[,c('year', 'cost_export_container', 'cost_import_container', 'start_business', 'register_property')]
+
+# Clean up
+temp <- gather(db, key, value, cost_export_container:register_property)
+temp$value <- as.numeric(temp$value)
+
+# Clean up names/labels
+temp$key <- factor(temp$key,
+                   labels = c('Cost to export container (deflated USD)',
+                              'Cost to import container (deflated USD)',
+                              'Cost (% of GDP per capita) to start business',
+                              'Cost (% of GDP per capita) to register property'))
+
+# PLOT
+g1 <- 
+  ggplot(data = temp[temp$key %in% unique(sort(temp$key))[1:2],], 
+         aes(x = year, y = value)) +
+    geom_line() +
+    facet_grid(.~key) +
+    theme_bw()
+g2 <- 
+  ggplot(data = temp[temp$key %in% unique(sort(temp$key))[3:4],], 
+         aes(x = year, y = value)) +
+    geom_line() +
+    facet_grid(.~key) +
+    theme_bw()
+multiplot(g1, g2)  
+```
+
 ## Breakdown by industry
+
+```{r}
+#####
+# MANUALLY ENTER DATA FROM INSTiTUtE OF STATISTICS
+#####
+industry <- data.frame(var = c('extractivas', 
+                               'alimentares',
+                               'madeira',
+                               'coque',
+                               'naometalicos',
+                               'metalicos',
+                               'equipamentos'),
+                       description = c('Extractive',
+                                       'Food, drink, tobacco',
+                                       'Wood, paper, printing',
+                                       'Chemical, petroluem products',
+                                       'Non-metalic minerals',
+                                       'Metalic minerals',
+                                       'Equipment (including vehicles)'))
+industry[,paste0('y', 2011:2014)] <- NA
+
+industry[industry$var == 'extractivas' ,paste0('y', 2011:2014)] <-
+  c(100, 194.4, 203.3, 230.1)
+industry[industry$var == 'alimentares' ,paste0('y', 2011:2014)] <-
+  c(100, 100.3, 147.2, 214.1)
+industry[industry$var == 'madeira' ,paste0('y', 2011:2014)] <-
+  c(100, 93.5, 103.3, 118.5)
+industry[industry$var == 'coque' ,paste0('y', 2011:2014)] <-
+  c(100, 105.6, 100.2, 79.5)
+industry[industry$var == 'naometalicos' ,paste0('y', 2011:2014)] <-
+  c(100, 102.9, 110, 131.5)
+industry[industry$var == 'metalicos' ,paste0('y', 2011:2014)] <-
+  c(100, 78.9, 83.2, 120.7)
+industry[industry$var == 'equipamentos' ,paste0('y', 2011:2014)] <-
+  c(100, 73.8, 167.5, 25.7)
+
+# Clean up a bit
+temp <- gather(industry, year, value, y2011:y2014)
+temp$year <- as.numeric(gsub('y', '', temp$year))
+temp$Industry <- temp$description
+
+ggplot(data = temp, aes(x = year, y = value, color = Industry)) +
+  geom_line(size = 2, alpha = 0.5) +
+  geom_point(aes(group = Industry)) +
+  theme_bw() +
+  geom_hline(yintercept = 100) +
+  scale_color_brewer(palette = 'Set1') +
+  xlab('Year') +
+  ylab('Percent of 2011 Volume') +
+  ggtitle('Industry volume index') +
+  theme(legend.position="bottom") +
+  guides(col = guide_legend(nrow = 3))
+
+```
+
+## Breakdown by region
+
+```{r}
+#####
+# READ IN GDP BY REGION/TIME DATA FROM
+# http://knoema.com/atlas/Mozambique/ranks/GDP-at-Constant-Prices
+#####
+gdp <- read_csv('data/gdp_by_region.csv')
+
+# Clean names to match map
+gdp$NAME[which(gdp$NAME == 'Niassa')] <- 'Nassa'
+
+# Remove city
+gdp <- gdp[gdp$NAME != 'Maputo cidade',]
+
+# Join map and data
+temp <- moz1
+temp@data <- left_join(x = temp@data, y = gdp, by = c('NAME_1' = 'NAME'))
+
+#####
+# PLOT
+#####
+cols <- colorRampPalette(brewer.pal(9, 'Blues'))(ceiling(max(temp$y2009)))
+colorfy <- function(number){
+  cols[round(number)]
+}
+
+par(mfrow = c(1,3))
+par(mar = c(4,0,4,0))
+plot(temp, col = colorfy(temp$y2000), border = NA); title(main = '2000')
+plot(temp, col = colorfy(temp$y2005), border = NA); title(main = '2005')
+plot(temp, col = colorfy(temp$y2009), border = NA); title(main = '2009')
+par(mar = c(5,4,2,2))
+
+legend_vec <- seq(6000, 24000, 6000)
+legend('right',
+       fill = cols[legend_vec],
+       bty = 'n',
+       border = NA,
+       legend = legend_vec)
+```
 
 ## Current private investments in health
 
@@ -87,6 +288,11 @@ nocite: |
 ...
 
 
+\columnsend
 
+******
+
+
+## References
 
 
