@@ -179,6 +179,8 @@ multiplot(g1, g2)
 
 ## Breakdown by industry
 
+Most of recent growth has come in the "extractive" industries, a term encompassing...  XXX
+
 ```{r}
 #####
 # MANUALLY ENTER DATA FROM INSTiTUtE OF STATISTICS
@@ -233,7 +235,12 @@ ggplot(data = temp, aes(x = year, y = value, color = Industry)) +
 
 ```
 
+
+The principal foreign firms operating in this space are YYY YYY YYY.
+
 ## Breakdown by region
+
+Growth has been similarly large in all districts.  From 2000 to 2009, GDP approximately doubled, with the greatest growth occurring in Inhambane (119% growth from 2000 to 2009), and the least robust grwoth in Nampula (95%).  
 
 ```{r}
 #####
@@ -261,18 +268,20 @@ colorfy <- function(number){
 }
 
 par(mfrow = c(1,3))
-par(mar = c(4,0,4,0))
+par(mar = c(4,0,2,1))
 plot(temp, col = colorfy(temp$y2000), border = NA); title(main = '2000')
 plot(temp, col = colorfy(temp$y2005), border = NA); title(main = '2005')
 plot(temp, col = colorfy(temp$y2009), border = NA); title(main = '2009')
 par(mar = c(5,4,2,2))
 
-legend_vec <- seq(6000, 24000, 6000)
+legend_vec <- seq(8000, 24000, 8000)
 legend('right',
        fill = cols[legend_vec],
        bty = 'n',
        border = NA,
-       legend = legend_vec)
+       legend = paste0(legend_vec/1000,'K'),
+       ncol = 1,
+       title = 'GDP')
 ```
 
 ## Current private investments in health
