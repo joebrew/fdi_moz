@@ -262,7 +262,7 @@ temp@data <- left_join(x = temp@data, y = gdp, by = c('NAME_1' = 'NAME'))
 #####
 # PLOT
 #####
-cols <- colorRampPalette(brewer.pal(9, 'Blues'))(ceiling(max(temp$y2009)))
+cols <- colorRampPalette(brewer.pal(9, 'Blues'))(ceiling(max(temp$y2009, na.rm = TRUE)))
 colorfy <- function(number){
   cols[round(number)]
 }
