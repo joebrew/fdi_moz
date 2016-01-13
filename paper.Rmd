@@ -1,6 +1,5 @@
 ---
-title: Characterization of foreign direct investment in Mozambique and implications
-  for public health
+title: Foreign direct investment, corporate social responsibility, and malaria control in Mozambique
 author: "Joe Brew and Elisa Sicuri"
 csl: health-economics-policy-and-law.csl
 output:
@@ -10,7 +9,7 @@ output:
   html_document: default
 highlight: zenburn
 latex_engine: xelatex
-bibliography: ../fdi_moz.bib
+bibliography: ../bib/library.bib
 ---
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, comment = NA, error= FALSE }
@@ -58,10 +57,20 @@ for (i in 0:3){
 setwd('..')
 ```
 
-```{r, fig.height = 3, fig.align='center'}
+```{r, fig.height = 3, fig.align='center', eval = FALSE}
 plot(moz0)
 ```
 
+
+\begin{changemargin}{3cm}{3cm} 
+
+\begin{center}
+\textbf{Abstract}
+\end{center}
+
+\emph{Foreign direct investment in Mozambique has increased rapidly in the last two decades. The growing interest in corporate social responsibility suggests the need for a critical examination of how private firms spend money on public goods. The interests of both the private and public sectors suggest the need for more private investment in malaria control.  However, the latter is not without risks.}
+
+\end{changemargin}
 
 
 ## Introduction
@@ -69,17 +78,19 @@ plot(moz0)
 \columnsbegin
 
 
-Mozabique's recent economic growth has been facilitated by the government's open policy towards foreign investment, a plentiful supply of natural resources (particularly minerals and hydrocarbons) [@Rogers] and relatively inexpensive labor. Improvements in health have accompanied economic expansion, but Mozambique still lags behind in basic health outcomes - particularly those related to malaria - even by regional standards[@whostat]. Though strong evidence shows that improved health yields substantial economic benefits [@World1999, @Bloom2008], private foreign investment has played only a secondary role in malaria prevention and control in recent years. 
+Mozabique's recent economic growth has been facilitated by the government's open policy towards foreign investment, a plentiful supply of natural resources (particularly minerals and hydrocarbons) [@Rogers] and relatively inexpensive labor. Improvements in health have accompanied economic expansion, but Mozambique still lags behind in basic health outcomes - particularly those related to malaria - even by regional standards [@whostat]. Despite  strong evidence showing that improved health yields substantial economic benefits [@World1999, @Bloom2008], direct foreign investment (FDI) under the auspices of "corporate social responsibility" (CSR) has largely ignored malaria prevention in favor of other social good activities.  
 
-Most of the malaria-related private investment in recent years has come in large, "mega-projects" whose malaria abatement activities are well-publicized but difficult-to-reproduce [@rollback] or whose primary aim is social impact (not profit) [@Han]. However, the magnitude and kinds of recent foreign direct investment suggest the potential for a shift from a large-but-few to a small-but-numerous approach.  This shift, if carried out effectively, could be a "win-win" for business and public health.
+The few malaria-related CSR projects in recent years has come in large, "mega-projects" whose well-publicized malaria abatement activities are profit-driven [@rollback] or whose primary aim is social impact (not profit) [@Han]. Though the former is often study as a "win-win" for business and public health, the latter also offers tangible benefits for private industry, and should be understood as operating under the same conditions and with the same motivations.
 
-Given the rapidly changing economic and epidemiologic context in Mozambique, a comprehensive and current understanding of both (a) the landscape of foreign direct investment in Mozambique and (b) public health issues which directly affect those investments is sorely needed. Such an understanding may foster greater private interest in for-profit investment in public health measures. Likewise, it can facilitate better public sector understanding of potential industry partners and stakeholders, a prerequisite to greater public-private collaborations.
+In 2015, the flood of FDI into Mozambique (and many other subsaharan African nations) slowed to a trickle. The impact of this slowdown on CSR is not yet known, but it can be reasonably be assumed that it will mean a reduction in CSR activities (albeit with lag).  Given the rapidly changing economic and epidemiologic context in Mozambique, a comprehensive and current understanding of both (a) the landscape of FDI and CSR in Mozambique and (b) public health issues (namely, malaria control) which are directly affected those investments is sorely needed. Such an understanding may foster greater private interest in for-profit investment in public health measures. Likewise, it can facilitate better public sector understanding of potential industry partners and stakeholders (a prerequisite to greater public-private collaborations), and guide the public sector away from an inflexible dependence on FDI for the provision of public health necessities.
 
-This paper gives an overview of trends in foreign investment in Mozambique and their related public health issues. It is by no means comprehensive, but offers a consolidated starting point for understanding where the interests and incentives of the public and private sectors may converge.
+This paper gives an overview of trends in FDI and CSR in Mozambique, with a focus on its impact on malaria control. It is by no means comprehensive, but offers a consolidated starting point for understanding where the interests and incentives of the public and private sectors converge and differ in regards to malaria control.
 
-## Macroeconomic overview
+## FDI and CSR in Mozambique
 
-Following independence (1974), Mozambique saw two decades of low and unsteady foreign investment, largely due to the civil war (which did not end until 1992).  Thereafter, foreign investment began a steady increase but leveled off by 2000.  However, the discovery of new sources of oil and gas set off a new spur of investments beginning in 2007.  From 2010 to 2013, foreign direct investment grew from 1.26 to 6.70 billion USD, a more than five-fold increase.  
+### Massive increase in FDI
+
+Following independence (1974), Mozambique saw two decades of low and unsteady foreign investment, largely due to the civil war (which did not end until 1992).  Thereafter, foreign investment began a steady increase but leveled off by the late 1990s.  However, the discovery of new sources of oil and gas set off a new spur of investments beginning in 2007, and continuing through last year.  From 2010 to 2013, foreign direct investment grew from 1.26 to 6.70 billion USD, a more than five-fold increase.  
 
 ```{r}
 #####
@@ -99,22 +110,31 @@ temp$year <- as.numeric(gsub('X', '', temp$year))
 temp <- temp[temp$Country.Name == 'Mozambique',]
 # Remove years without data
 temp <- temp[temp$year >= 1970 & temp$year <= 2014,]
-# temp <- temp[!is.na(temp$value),]
+temp <- temp[!is.na(temp$value),]
+temp <- temp[temp$value > 0,]
 
 #####
 # PLOT FOREIGN DIRECT INVESTMENT NET INFLOWS
 #####
 ggplot(data = temp, aes(x = year, y = value)) +
+    scale_y_log10() +
   geom_point(alpha = 0.5, size = 2) +
   geom_line(alpha = 0.5, size = 2) +
   theme_bw() +
   xlab('Year') +
   ylab('Current USD (logarithmic scale)') +
-  scale_y_log10() +
   ggtitle('Foreign direct investment: net inflows')
 ```
 
-In addition to the discovery of new resources, recent growth has also been fueled by political and economic reforms which have made it easier for foreigners to do business in Mozambique.  Of particular note, inflation has remained relatively low, and the costs to import and export have decreased dramatically, as have the costs of starting a business and registering property.
+In addition to the discovery of new resources, recent growth has also been fueled by political and economic reforms which have made it easier for foreigners to do business in Mozambique.  Of particular note, inflation has remained relatively low. 
+
+```{r}
+plot(jitter(1:10, 100),
+     type = 'l',
+        main = 'Inflation chart here')
+```
+
+The massive increases in FDI have also been facilitated by dramatic decreases in the costs to import and export, as well as the costs of starting a business and registering property.
 
 ```{r, comment = NA, message = FALSE, results = 'hide'}
 ######
@@ -177,9 +197,9 @@ g2 <-
 multiplot(g1, g2)  
 ```
 
-## Breakdown by industry
+### Breakdown by industry
 
-Most of recent growth has come in the "extractive" industries, a term encompassing...  XXX
+Most of recent growth has come in the "extractive" industries, a term encompassing a range of industry, but in the Mozambican context largely applying to xxxxx.   
 
 ```{r}
 #####
@@ -238,7 +258,7 @@ ggplot(data = temp, aes(x = year, y = value, color = Industry)) +
 
 The principal foreign firms operating in this space are YYY YYY YYY.
 
-## Breakdown by region
+### Breakdown by region
 
 Growth has been similarly large in all districts.  From 2000 to 2009, GDP approximately doubled, with the greatest growth occurring in Inhambane (119% growth from 2000 to 2009), and the least robust grwoth in Nampula (95%).  
 
@@ -259,42 +279,141 @@ gdp <- gdp[gdp$NAME != 'Maputo cidade',]
 temp <- moz1
 temp@data <- left_join(x = temp@data, y = gdp, by = c('NAME_1' = 'NAME'))
 
-#####
-# PLOT
-#####
-cols <- colorRampPalette(brewer.pal(9, 'Blues'))(ceiling(max(temp$y2009, na.rm = TRUE)))
-colorfy <- function(number){
-  cols[round(number)]
-}
+##### PLOT TS
+ts <- temp@data
+ts <- gather(ts, year, gdp, y2009:y2000)
+ts$year <- as.numeric(gsub('y', '', ts$year))
+ts$year <- as.Date(paste0(ts$year, '-01-01'))
 
-par(mfrow = c(1,3))
-par(mar = c(4,0,2,1))
-plot(temp, col = colorfy(temp$y2000), border = NA); title(main = '2000')
-plot(temp, col = colorfy(temp$y2005), border = NA); title(main = '2005')
-plot(temp, col = colorfy(temp$y2009), border = NA); title(main = '2009')
-par(mar = c(5,4,2,2))
+ggplot(data = ts, 
+       aes(x = year, y = gdp, col = NAME_1)) +
+  geom_line() +
+  geom_point() +
+  xlab('Year') +
+  ylab('GDP') +
+  theme_bw() +
+  scale_colour_manual(guide = guide_legend(reverse=TRUE), 
+                      name = 'District',
+                      values = brewer.pal(length(unique(ts$NAME_1)), 'Spectral')) +
+  ggtitle('District-specific growth in GDP')
+```  
 
-legend_vec <- seq(8000, 24000, 8000)
-legend('right',
-       fill = cols[legend_vec],
-       bty = 'n',
-       border = NA,
-       legend = paste0(legend_vec/1000,'K'),
-       ncol = 1,
-       title = 'GDP')
+Growth has been concentrated in the capital region and in areas with extractive industries.
+
+```{r}
+#####
+# PLOT MAPS
+#####
+
+# Get columns for coordinates
+temp$x <- coordinates(temp)[,1]
+temp$y <- coordinates(temp)[,2]
+
+# Fortify
+temp_fort <- fortify(temp, id = 'ID_0')
+
+# Bring in gdp data to fortified map
+temp_fort <- left_join(x = temp_fort,
+                       y = temp@data %>%
+                         mutate(id = as.character(ID_1)))
+
+# Gather by year
+temp_fort <- gather(temp_fort, year, gdp, y2009:y2000)
+temp_fort$year <- as.numeric(gsub('y', '', temp_fort$year))
+
+ggplot(data = temp_fort,
+       aes(x = long, 
+           y = lat, 
+           group = group,
+           fill = gdp)) +
+  geom_polygon() +
+  coord_map() +
+  facet_wrap(~year) +
+  xlab('Longitude') +
+  ylab('Latitude') +
+  theme_bw() +
+  scale_fill_gradient(low = 'yellow',
+                      high = 'darkblue',
+                      # guide = guide_legend(reverse=TRUE), 
+                      name = 'GDP')
+
+
+# cols <- colorRampPalette(brewer.pal(9, 'Blues'))(ceiling(max(temp$y2009, na.rm = TRUE)))
+# colorfy <- function(number){
+#   cols[round(number)]
+# }
+# 
+# par(mfrow = c(1,3))
+# par(mar = c(4,0,2,1))
+# plot(temp, col = colorfy(temp$y2000), border = NA); title(main = '2000')
+# plot(temp, col = colorfy(temp$y2005), border = NA); title(main = '2005')
+# plot(temp, col = colorfy(temp$y2009), border = NA); title(main = '2009')
+# par(mar = c(5,4,2,2))
+# 
+# legend_vec <- seq(8000, 24000, 8000)
+# legend('right',
+#        fill = cols[legend_vec],
+#        bty = 'n',
+#        border = NA,
+#        legend = paste0(legend_vec/1000,'K'),
+#        ncol = 1,
+#        title = 'GDP')
 ```
 
-## Current private investments in health
+### CSR in Mozambique
 
-## Potential for scaling-up collaboration
+Corporate social responsibility in Mozambique is new in nomenclature, but activities which could be classified as CSR have existed since at least xxxxxx. The number of firms actively engaging in CSR cannot be ascertained (given the large and ever-changing number of small businesses), but virtually all of the largest firms, both foreign and domestic, have a CSR component.  
 
-Bla bla bla[@Unctad2012].  Bla bla bla.
+Examples of interest in CSR here.  \lipsum[1]
+
+```{r}
+barplot(jitter(1:10, 15),
+        main = 'Chart from google trends about CSR')
+```
+
+Lots of examples of CSR go here.  \lipsum[1]
+
+```{r}
+plot(jitter(1:20, 20),
+     type = 'l',
+     main = 'Some chart about growing CSR activity')
+```
 
 
----
-nocite: | 
-  @Unctad2012
-...
+
+### Malaria-related CSR (or lack thereof)
+
+Most CSR-funded activities are focused on education, community development, women's rights and entrepreneurship. According to a UN poll, none of the country's largest firms invest directly in malaria-related CSR activities. [@Compact2007] This may be due to the perceived costs of malaria control, lack of perceived PR benefits, as well as the "opt-in" nature and privacy/legal issues generally related to engaging in health-related campaigns.   
+
+That said, a majority of the firms interviewed by the UN indicated that one of the principal reasons for investment in CSR is to complement government efforts.  To the extent that malaria constitutes xxxx % of the burden of disease in Mozambique, malaria control's lack of representation among core CSR activities is a notable absence. 
+
+
+# Scaling up malaria control through CSR: opportunity and risk
+
+### Opportunity  
+
+The historical absence of malaria-related CSR represents an opportunity for complementarity. In addition the improvements in public health, both the private and public sectors stand to benefit economically from a scaling up of malaria control driven by the private sector. By increasing malaria control activities, as a share of total CSR expenditures, public funds could be redirected towards other areas of health, particularly the faltering xxx and yyy (which is not as suitable for CSR).  Likewise, CSR activities would have a more direct impact on wellbeing (with less temporal lag), thereby fulfilling the public relations goals of the firms that invest in CSR. Finally, for many industries, the firm itself is a potential direct beneficiary, given that improvements in employee health and a reduction in employee absenteeism can be directly correlated to productivity.  
+
+
+
+### Risk  
+
+Scaling up CSR while also encouraging its redirection towards malaria control is not without risks. The most notable downfall of this approach is the potential for the inadvertent dependence on the private sector for what is essentially a public good.  Were CSR targeting malaria control to reach significant levels (and the government were to enact a correspoding redirection of funds towards the financing of other health areas), then a situation would be created in which the public sector had essentially divested from a public good. This would be unwise and dangerous.  
+
+A secondary risk is that in addition the financial divestment, increased private sector involvement in malaria control could cause a decrease in public sector _competence_ in the prevention and treatment of malaria. This could have negative consequences in the case of either a financial or economic crisis (in which CSR activity would be curtailed) or an increase in malarial activity. By the same token, CSR involvement in malaria control could potentially portend, at least initially, less effective malaria control. Private firms' incentives, though aligned with the public's in terms of malaria, are not identical, and pressures from shareholders and for positive public perception might motivate malaria control strategies which do not necessarily carry with them the most recent scientific knowledge.  
+
+A final risk is that of volatility. By centralizing malaria control under the auspices of the government, public health authorities can effectively distribute malaria control expenditures to where and when they are most needed. If this control were only in the hands of private firms, expenditure would likely transform into a function of firm-specific profitability and shareholder incentives, as well as market cycles. This could lead to a situation in which malaria control activities are most prevalent in areas where the economy is strongest, rather than areas where the need is greatest.  
+
+
+
+# Conclusion  
+
+High FDI in Mozambique and growing interest in CSR both call for increased reflection on the private sector's role in the delivery of public goods. A refocusing of CSR expenditures into areas where the need is greatest (specifically, malaria control) could lead to better health and greater profits. This "win-win" for the public and private sectors represents a rare opportunity, which deserves more discourse, research and experimentation.    
+
+That said, the growing interest in CSR suggests both that (a) the need for services exist and (b) that corporations (especially foreign firms) have enough excess capital to finance these services. Both of these factors suggest the need for a better-fitting taxation rate, and a more efficient delivery of public services. That said, in the short-term, increasing the efficiency and effectiveness of CSR activity through a re-pivoting towards malaria control should remain a goal.
+
+
+
 
 
 \columnsend
