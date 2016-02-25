@@ -1,0 +1,65 @@
+---
+title: Abstract - Foreign direct investment, corporate social responsibility, and malaria control in Mozambique
+author: 
+  - Joe Brew*
+  - Elisa Sicuri*  
+csl: health-economics-policy-and-law.csl
+output:
+  pdf_document:
+    includes:
+      in_header: style.sty
+  html_document: default
+highlight: zenburn
+latex_engine: xelatex
+bibliography: library.bib
+---
+
+
+
+
+```{r, echo=FALSE, comment=NA, message=FALSE, warning=FALSE} 
+#libraries
+library(ggmap)
+library(ggplot2)
+library(grid)
+library(dplyr)
+library(knitr)
+library(ggthemes)
+library (rgdal)
+library(RColorBrewer)
+library(maptools)
+opts_chunk$set(comment = NA, message = FALSE, echo = FALSE, results = 'hide', fig.height = 6, warning = FALSE, fig.width = 6)
+```
+
+```{r}
+suppressWarnings(library(xtable))
+options(xtable.comment = FALSE)
+```
+
+```{r}
+source('helpers.R')
+```
+
+
+\begin{changemargin}{1cm}{1cm} 
+
+\begin{center}
+\Large{\textbf{Abstract}}
+\end{center}
+\begin{large}
+\textbf{Context:} Foreign direct investment in Mozambique has increased rapidly in the last two decades. The growing interest in corporate social responsibility - combined with a recent push for malaria eradication - suggest the need for a critical examination of how firms spend money on malaria control. The interests of both the private and public sectors align in the need for more private investment in malaria control.  However, given the lack of coordination between public and private sectors, an over-reliance on foreign and private initiative for funding eradication is not without risks. \\
+
+\textbf{Content:} We provide an overview and reflect on the experiences of private firms engaging in privately-funded malaria control activities in Mozambique. Specifically, we explore the benefits of private financing of malaria control interventions, and caution against an overreliance on such an approach from a public health perspective. Additionally, we map out the landscape of private industries, and attempt to identify areas that are ripe for a "scaling-up" of private investment. \\
+
+
+\textbf{Form:} We will present an overview paper, as well as a combination of case studies. Though the latter are somewhat anecdotal, the former will rely primarily on publicly available economic and industry data, complemented by interviews and questionnaires from key industry members.\\
+
+
+
+
+\end{large}
+
+\end{changemargin}
+
+* All authors affiliated with the Institue of Global Health of Barcelona (www.isglobal.org).
+
