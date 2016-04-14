@@ -1,2 +1,5 @@
 lit/
 .Rproj.user
+*.RData
+*.rds
+data/dhs_private_irs.csv

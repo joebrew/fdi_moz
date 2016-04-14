@@ -19,6 +19,8 @@ options(scipen=999)
 #####
 # PACKAGES
 #####
+library(maptools)
+library(maps)
 library(dplyr)
 library(xtable)
 library(ggplot2)
@@ -32,6 +34,10 @@ library(readxl)
 library(tidyr)
 library(readr)
 library(RColorBrewer)
+library(ggmap)
+library(rasterVis)
+library(colorspace)
+
 loadfonts(device = 'postscript', quiet = TRUE)
 
 # BASIC KNITR OPTIONS
@@ -149,10 +155,6 @@ ggplot(data = forex,
   ylab('Meticals') +
   geom_point(alpha = 0.5, size = 1) +
   ylim(0, 40)
-  
-
-
-
 ```
 
 The massive increases in FDI have also been facilitated by dramatic decreases in the costs to import and export, as well as the costs of starting a business and registering property [@doingbusiness].
@@ -289,6 +291,7 @@ Despite the concentration of private investment in regional projects, growth has
 # http://knoema.com/atlas/Mozambique/ranks/GDP-at-Constant-Prices
 #####
 gdp <- read_csv('data/gdp_by_region.csv')
+names(gdp)[1] <- 'NAME'
 
 # Clean names to match map
 gdp$NAME[which(gdp$NAME == 'Niassa')] <- 'Nassa'
@@ -371,8 +374,6 @@ ggplot(data = temp_fort,
                       high = 'darkblue',
                       # guide = guide_legend(reverse=TRUE), 
                       name = 'GDP')
-
-
 # cols <- colorRampPalette(brewer.pal(9, 'Blues'))(ceiling(max(temp$y2009, na.rm = TRUE)))
 # colorfy <- function(number){
 #   cols[round(number)]
@@ -401,11 +402,116 @@ Corporate social responsibility in Mozambique is new in nomenclature, but activi
 
 Firms with CSR activities are often large and foreign.  Among the largest "key players" in Mozambican CSR are Coca-Cola, British Petroleum and Colgate-Palmolive.  State conglomerates, such as Águas de Moçambique and Electricidade de Moçambique, also participate in CSR activities [@Compact2007].   
 
-### Malaria-related CSR (or lack thereof)
+### Malaria-related CSR and other corporate activity  
 
-Most CSR-funded activities are focused on education, community development, women's rights and entrepreneurship. According to a UN poll, none of the country's largest firms invest directly in malaria-related CSR activities [@Compact2007].  This may be due to the perceived costs of malaria control, lack of perceived PR benefits, as well as the "opt-in" nature and privacy/legal issues generally related to engaging in health-related campaigns.   
+Most CSR-funded activities are focused on education, community development, women's rights and entrepreneurship. According to a UN poll, none of the country's largest firms invest directly in malaria-related CSR activities [@Compact2007].  This may be due to the perceived costs of malaria control, lack of perceived PR benefits, the government and NGO's predominant role in the area, as well as the "opt-in" nature and privacy/legal issues generally related to engaging in health-related campaigns.   
 
 That said, a majority of the firms interviewed by the UN indicated that one of the principal reasons for investment in CSR is to complement government efforts.  To the extent that malaria accounts for more of the loss in disability-adjusted life years in Mozambique than comparable countries [@ihme], malaria control's lack of representation among core CSR activities is a notable absence. 
+
+Whether under the guise of CSR or not, it is noteworthy that the private sector currently does play a role in malaria control activities. According to 2011 DHS data, greater than 7 in every 1,000 households had a private company carry out indoor residual spraying [@dhs]. And, in some clusters, the percent of houses covered by private IRS was greater than 25%.
+
+```{r}
+# READ IN DHS DATA
+# (generated in dhs/exploration.Rmd -  https://github.com/joebrew/dhs/)
+dhs <- read_csv('data/dhs_private_irs.csv')
+
+# Get mean by cluster
+by_cluster <-
+  dhs %>%
+  group_by(cluster) %>%
+  summarise(lat = first(lat),
+            lon = first(lon),
+            urban_rural = first(urban_rural),
+            n = sum(n),
+            private = mean(private, na.rm = TRUE),
+            weight = first(weight)) %>%
+  filter(lat < -10, lon >20)
+
+# Get weighted mean
+x = weighted.mean(by_cluster$private, w = by_cluster$weight)
+
+# Make a spatial version
+houses <- 
+  by_cluster %>%
+  mutate(latitude = lat,
+         longitude = lon)
+coordinates(houses) <- ~longitude + latitude
+proj4string(houses) <- proj4string(moz0)
+
+# Get a smoothed surface for private IRS coverage
+if('irs_grid.RData' %in% dir()){
+  load('irs_grid.RData')
+} else {
+  
+  # Create dataset of gridded values
+  moz <- map('world', 'moz', plot = FALSE)
+  lons <- seq(min(moz$x, na.rm = TRUE), 
+              max(moz$x, na.rm = TRUE), 
+              length = 100)
+  lats <- seq(min(moz$y, na.rm = TRUE), 
+              max(moz$y, na.rm = TRUE), 
+              length = 100)
+  df_grid <- expand.grid(lon = lons,
+                         lat = lats)
+  
+  # Create latitude and longitude columns and convert to spatial
+  df_grid$latitude <- df_grid$lat
+  df_grid$longitude <- df_grid$lon
+  coordinates(df_grid) <- ~longitude + latitude
+  proj4string(df_grid) <- proj4string(moz0)
+  
+  # Keep only those points within mozambique
+  x <- over(df_grid, polygons(moz0))
+  df_grid <- df_grid[!is.na(x),]
+  
+  # Create a value in df_grid
+  df_grid$val <- NA
+  
+  # Loop through the grid, getting a weighte dvalue of mosquito net or not
+  nn <- nrow(df_grid)
+  for (i in 1:nn){
+      message(paste0('row ', i,
+                     ' of ', nn))
+    
+    # Get distance from specific point in df_grid 
+    # to every point in houses
+    distances <- spDistsN1(pts = houses,
+                          pt = df_grid[i,],
+                          longlat = TRUE)
+    # Define which are acceptably close
+    close_enough <- which(distances <= 50000)
+    # Get an val score (weighted likelihood of having net)
+    val <- stats::weighted.mean(x = houses$private[close_enough],
+                         w = ((1 / distances[close_enough]) ^2) *
+                           houses$weight[close_enough],
+                         na.rm = TRUE)
+    # Assign val to the dataframe
+    df_grid$val[i] <- val
+  }
+  save('df_grid', file = 'irs_grid.RData')
+}
+
+# Convert to raster
+temp <- df_grid@data %>% arrange(lon, lat)
+r <- rasterFromXYZ(temp[, c('lon', 'lat', 'val')])
+levelplot(r, contour = TRUE, par.settings=RdBuTheme)
+```
+
+```{r}
+# Fortify moz1
+moz2_fortified <- fortify(moz2, region = 'NAME_2')
+
+# Plot clusters
+ggplot(data = moz2_fortified,
+       aes(x = long, y = lat)) +
+  geom_polygon(aes(group = id)) +
+  coord_map() +
+  geom_point(data = by_cluster,
+             aes(x = lon, 
+                 y = lat,
+                 size = weight,
+                 color = private))
+```
 
 
 # Scaling up malaria control through CSR: opportunity and risk
