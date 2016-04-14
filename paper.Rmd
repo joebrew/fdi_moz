@@ -37,6 +37,7 @@ library(RColorBrewer)
 library(ggmap)
 library(rasterVis)
 library(colorspace)
+library(dismo)
 
 loadfonts(device = 'postscript', quiet = TRUE)
 
@@ -408,7 +409,10 @@ Most CSR-funded activities are focused on education, community development, wome
 
 That said, a majority of the firms interviewed by the UN indicated that one of the principal reasons for investment in CSR is to complement government efforts.  To the extent that malaria accounts for more of the loss in disability-adjusted life years in Mozambique than comparable countries [@ihme], malaria control's lack of representation among core CSR activities is a notable absence. 
 
-Whether under the guise of CSR or not, it is noteworthy that the private sector currently does play a role in malaria control activities. According to 2011 DHS data, greater than 7 in every 1,000 households had a private company carry out indoor residual spraying [@dhs]. And, in some clusters, the percent of houses covered by private IRS was greater than 25%.
+Whether under the guise of CSR or not, it is noteworthy that the private sector currently does play a role in malaria control activities. According to 2011 DHS data, greater than 7 in every 1,000 households had a private company carry out indoor residual spraying [@dhs]. And, in some clusters, the percent of houses covered by private IRS was greater than 25%.  
+
+Interestingly, though the UN data indicated that corporations don't actively engage in malaria control as part of CSR, the geographic distribution of households which had their homes sprayed by a private entity are clustered in areas where foreign firms operate, particularly in the south (around Maputo) in the East, where extractive industry activity is highest.  
+
 
 ```{r}
 # READ IN DHS DATA
@@ -494,23 +498,40 @@ if('irs_grid.RData' %in% dir()){
 # Convert to raster
 temp <- df_grid@data %>% arrange(lon, lat)
 r <- rasterFromXYZ(temp[, c('lon', 'lat', 'val')])
-levelplot(r, contour = TRUE, par.settings=RdBuTheme)
+proj4string(r) <- proj4string(moz1)
+# levelplot(r, contour = TRUE, par.settings=RdBuTheme)
+
+# # Convert raster to polygons
+# rtp <- rasterToPolygons(r)
+# rtp@data$id <- 1:nrow(rtp@data) 
 ```
+
 
 ```{r}
 # Fortify moz1
 moz2_fortified <- fortify(moz2, region = 'NAME_2')
 
 # Plot clusters
+cols <- brewer.pal(9, 'Spectral')
 ggplot(data = moz2_fortified,
        aes(x = long, y = lat)) +
-  geom_polygon(aes(group = id)) +
-  coord_map() +
-  geom_point(data = by_cluster,
-             aes(x = lon, 
-                 y = lat,
-                 size = weight,
-                 color = private))
+  # coord_cartesian() + 
+  geom_raster(data = df_grid@data,
+              aes(x = lon, y = lat, fill = val * 100)) +
+    scale_fill_gradientn(name="Percent",colours = cols) +
+    coord_equal() + 
+    # geom_polygon(aes(group = id), 
+    #              color = 'black',
+    #              fill = NA,
+    #              size = 0.1,
+    #              alpha = 0.3) +
+  theme_bw() +
+  xlab('Longitude') +
+  ylab('Latitude') +
+  # theme_void() +
+  ggtitle('(Smoothed) percent of households with private IRS') +
+  theme(legend.position="bottom") 
+
 ```
 
 
