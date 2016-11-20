@@ -1,6 +1,6 @@
 ---
 title: Foreign direct investment, corporate social responsibility, and malaria control in Mozambique
-author: "Joe Brew and Elisa Sicuri"
+author: "Trends, risks, and opportunities"
 csl: health-economics-policy-and-law.csl
 output:
   pdf_document:
@@ -71,11 +71,17 @@ plot(moz0)
 
 \begin{changemargin}{3cm}{3cm} 
 
+
 \begin{center}
+
+\begin{large}
+Joe Brew\footnote{Barcelona Institute for Global Health; Vrije Universiteit Amsterdam} and Elisa Sicuri\footnote{Barcelona Institute for Global Health; Imperial College London}
+\end{large}
+
 \textbf{Abstract}
 \end{center}
 
-\emph{Foreign direct investment in Mozambique has increased rapidly in the last two decades. The growing interest in corporate social responsibility - combined with a recent push for malaria eradication - suggest the need for a critical examination of how firms spend money on malaria control. The interests of both the private and public sectors align in the need for more private investment in malaria control.  However, given the lack of coordination between public and private sectors, an over-reliance on foreign and private initiative for funding eradication is not without risks.}
+\emph{Foreign direct investment (FDI) in Mozambique has increased rapidly in the last two decades. The growing interest in corporate social responsibility (CSR) - combined with a recent push for malaria eradication - suggest the need for a critical examination of the research attention garnered by FDI and CSR, as well as how private firms spend money on  control. Through a systematic review of publications, we find that there has been a notable increase in research pertaining to FDI and CSR in recent years.  However, given the lack of coordination between public and private sectors, even when interests coincide, an over-reliance on foreign and private initiative for funding eradication is not without risks.}
 
 \end{changemargin}
 
@@ -91,7 +97,7 @@ The few malaria-related CSR projects in recent years has come in large, "mega-pr
 
 In 2015, the flood of FDI into Mozambique (and many other subsaharan African nations) slowed to a trickle. The impact of this slowdown on CSR is not yet known, but it can reasonably be assumed that it will mean a reduction in CSR activities (albeit with lag).  Given the rapidly changing economic and epidemiologic context in Mozambique, a comprehensive and current understanding of both (a) the landscape of FDI and CSR in Mozambique and (b) public health issues (namely, malaria control) which are directly affected those investments is sorely needed. Such an understanding may foster greater private interest in for-profit investment in public health measures. Likewise, it can facilitate better public sector understanding of potential industry partners and stakeholders (a prerequisite to greater public-private collaborations), and guide the public sector away from an inflexible dependence on FDI for the provision of public health necessities.
 
-This paper gives an overview of trends in FDI and CSR in Mozambique, with a focus on its impact on malaria control. It is by no means comprehensive, but offers a consolidated starting point for understanding where the interests and incentives of the public and private sectors converge and differ in regards to malaria control.
+This paper gives an overview of trends in FDI and CSR in Mozambique, with a focus on its impact on malaria control. It also offers a quasi-systematic review of the research attention garnered by FDI and CSR in recent years. It is by no means comprehensive, but offers a consolidated starting point for understanding both the place of FDI and CSR in the literature, as well as where the interests and incentives of the public and private sectors converge and differ in regards to malaria control.
 
 ## FDI and CSR in Mozambique
 
@@ -533,6 +539,63 @@ ggplot(data = moz2_fortified,
   theme(legend.position="bottom") 
 
 ```
+
+# Systematic review of FDI and CSR in health research
+
+
+
+```{r}
+
+# PERFORM PUBMED SEARCH
+source('search_pubmed.R')
+if('search_results.RData' %in% dir()){
+  load('search_results.RData')
+} else {
+  csr_results <- pubmed(start_year = 2000,
+                         end_year = 2016,
+                         search_topic = '(malaria) and (corporate social responsibility)',
+                         counts_only = FALSE,
+                         n_records = 5000)  
+  fdi_results <- pubmed(start_year = 2000,
+                       end_year = 2016,
+                       search_topic = '(malaria) and (foreign direct investment)',
+                       counts_only = FALSE,
+                       n_records = 5000)  
+    moz_csr_results <- pubmed(start_year = 2000,
+                     end_year = 2016,
+                     search_topic = '(mozambique) and (corporate social responsibility)',
+                     counts_only = FALSE,
+                     n_records = 5000)  
+  moz_fdi_results <- pubmed(start_year = 2000,
+                     end_year = 2016,
+                     search_topic = '(mozambique) and (foreign direct investment)',
+                     counts_only = FALSE,
+                     n_records = 5000)  
+  save(csr_results,
+       fdi_results,
+       moz_csr_results,
+       moz_fdi_results,
+       file = 'search_results.RData')
+}
+
+# Charts etc. will eventually go here
+```
+
+
+In order to gauge research attention and focus on FDI and CSR insofar as they affect Mozambique and malaria, four systematic searches were carried out using the NCBI/pubmed databases:
+
+1. `"(malaria) and (corporate social responsibility)"`
+2. `"(malaria) and (foreign direct investment)"`
+3. `"(mozambique) and (corporate social responsibility)"`
+4. `"(mozambique) and (foreign direct investment)"`
+
+The number of records retrieved for the 4 searches can be visualized over time below:
+
+```{r}
+barplot(1:10)
+```
+
+There are two important interpretations to the above plot. XXX YYY
 
 
 # Scaling up malaria control through CSR: opportunity and risk
