@@ -22,6 +22,8 @@ abstract: |
   
 bibliography: library.bib
 output: rticles::elsevier_article
+header-includes:
+     - \usepackage{longtable}
 ---
 
 
@@ -88,15 +90,92 @@ plot(moz0)
 
 
 
-Mozabique's recent economic growth has been facilitated by the government's open policy towards foreign investment, a plentiful supply of natural resources (particularly minerals and hydrocarbons) [@Rogers] and relatively inexpensive labor. Improvements in health have accompanied economic expansion, but Mozambique still lags behind in basic health outcomes - particularly those related to malaria - even by regional standards. Despite  strong evidence showing that improved health yields substantial economic benefits [@World1999, @Bloom2008], direct foreign investment (FDI) under the auspices of "corporate social responsibility" (CSR) has largely ignored malaria prevention in favor of other social good activities.  
+Mozabique's recent economic growth has been facilitated by the government's open policy towards foreign investment, a plentiful supply of natural resources (particularly minerals and hydrocarbons) [@Rogers] and relatively inexpensive labor. Improvements in health have accompanied economic expansion, but Mozambique still lags behind in basic health outcomes - particularly those related to malaria - even by regional standards. Most economic activities have to deal
+with malaria: particularly agricultural-based and extraction activities cannot be carried out without consistent investment towards malaria management, both
+prevention and prompt treatment. This can be done as part of the “normal activities” of private sector or can go slightly beyond what is strictly needed for the
+activities and be seen as part of the corporate social responsibilityDespite  strong evidence showing that improved health yields substantial economic benefits [@World1999, @Bloom2008], there is little evidence regarding the extent to which "corporate social responsibility" (CSR) activities of foreign firms have targeted or impacted malaria. Understanding the relationship between FDI, CSR and malaria is essential to identifying which incentives and barriers to private sector involvement in malaria elimination exist, as well as identifying potential opportunities and synergies for scaling up private sector involvment in malaria elimination.
 
+That said, 
 The few malaria-related CSR projects in recent years has come in large, "mega-projects" whose well-publicized malaria abatement activities are profit-driven [@Mouzin2011] or whose primary aim is not profit-related [@Han]. Though the former is often portrayed as a "win-win" for business and public health, the latter also offers tangible benefits for private industry, and should be understood as operating under the same conditions and with the same motivations.
 
-Beginning in late 2015, the flood of FDI into Mozambique (and many other subsaharan African nations) slowed to a trickle. The impact of this slowdown on CSR is not yet known, but it can reasonably be assumed that it will mean a reduction in CSR activities (albeit with lag).  Given the rapidly changing economic and epidemiologic context in Mozambique, a comprehensive and current understanding of both (a) the landscape of FDI and CSR in Mozambique and (b) public health issues (namely, malaria control) which are directly affected those investments is sorely needed. Such an understanding may foster greater private interest in for-profit investment in public health measures. Likewise, it can facilitate better public sector understanding of potential industry partners and stakeholders (a prerequisite to greater public-private collaborations), and guide the public sector away from an inflexible dependence on FDI for the provision of public health necessities.
+Private foreign investors showed a great optimism during the FMI meeting held in Maputo in 2014 (reference needed). Beginning in late 2015, the flood of FDI into Mozambique (and many other subsaharan African nations) slowed to a trickle. The impact of this slowdown on CSR is not yet known, but it can reasonably be assumed that it will mean a reduction in CSR activities (albeit with lag). Almost in parallel to this, Mozambique has had serious financial problems which have
+resulted in default (reference needed http://www.economist.com/news/middleeast-and-africa/21715030-mozambique-fails-pay-its-debtsmozambiques-default). Given the rapidly changing economic and epidemiologic context in Mozambique, a comprehensive and current understanding of both (a) the landscape of FDI and CSR in Mozambique and (b) public health issues (namely, malaria control) which are directly affected those investments is sorely needed. Such an understanding may foster greater private interest in for-profit investment in public health measures. Likewise, it can facilitate better public sector understanding of potential industry partners and stakeholders (a prerequisite to greater public-private collaborations), and guide the public sector away from an inflexible dependence on FDI for the provision of public health necessities.
 
-We carried out a systematic review of economic and public health research pertaining to FDI, CSR, malaria and Mozambique. This paper gives an overview of trends in FDI and CSR in Mozambique, with a focus on its impact on malaria control. It is by no means comprehensive, but offers a consolidated starting point for understanding both the place of FDI and CSR in the literature, as well as where the interests and incentives of the public and private sectors converge and differ in regards to malaria control.
+We carried out a systematic review of economic and public health research pertaining to FDI, CSR, malaria and Mozambique. This paper gives an overview of trends in FDI and CSR in Mozambique as well as a synthesis of academic literature on the topic, with a focus on its impact on malaria control. It is by no means comprehensive, but offers a consolidated starting point for understanding both the place of FDI and CSR in the literature, as well as where the interests and incentives of the public and private sectors converge and differ in regards to malaria control.
 
-## FDI and CSR in Mozambique
+# Methods
+
+
+
+```{r}
+# PERFORM PUBMED SEARCH
+source('search_pubmed.R')
+
+if('search_results.RData' %in% dir()){
+  load('search_results.RData')
+} else {
+  csr_results <- pubmed(start_year = 2000,
+                         end_year = 2016,
+                         search_topic = '(malaria) and (corporate social responsibility)',
+                         counts_only = FALSE,
+                         n_records = 5000)  
+  fdi_results <- pubmed(start_year = 2000,
+                       end_year = 2016,
+                       search_topic = '(malaria) and (foreign direct investment)',
+                       counts_only = FALSE,
+                       n_records = 5000)  
+    moz_csr_results <- pubmed(start_year = 2000,
+                     end_year = 2016,
+                     search_topic = '(mozambique) and (corporate social responsibility)',
+                     counts_only = FALSE,
+                     n_records = 5000)  
+  moz_fdi_results <- pubmed(start_year = 2000,
+                     end_year = 2016,
+                     search_topic = '(mozambique) and (foreign direct investment)',
+                     counts_only = FALSE,
+                     n_records = 5000)  
+  save(csr_results,
+       fdi_results,
+       moz_csr_results,
+       moz_fdi_results,
+       file = 'search_results.RData')
+}
+pubmed_results <- rbind(csr_results$results %>% mutate(type = 'CSR'),
+                        fdi_results$results %>% mutate(type = 'FDI'),
+                        moz_csr_results$results %>% mutate(type = 'CSR MOZ'))
+
+```
+
+We sought to identify and describe sources of information regarding FDI and CSR in Mozambique, particularly in regards to malaria control and elimination. We carried out this identification process via 2 distinct approaches to understanding FDI, CSR and malaria in Mozambique:
+
+1. Identification and analysis of quantitative datasets.
+2. Systematic review of both grey literature (news, company websites, etc.) and academic literature.
+
+## Quantitative datasets
+
+We examined and analyzed trends from multiple datasets related to FDI, CSR and malaria in Mozambique. These included the "Doing Business" data pertaining to the measurement of regulatory efficiency, the GADM, the Deutsche Bundesbank Data Repository for foreign exchange rate history, the Knoema World Data Atlas for macroeconomic trends, the World Bank data portal for information containing to net foreign inflows and FDI, USAID Demographic and Health Survey data on sociodemographics and health-related practices, the Instituto Nacional de Estatistica for granular data pertaining to Mozambique's population and economic activities, and Institute for Health Metrics and Evaluation data pertaining to disease trends over time. 
+
+## Systematic review
+
+### Grey literature
+
+Our grey literature review followed known practices [@Godin2015, @Adams2016], relying on internet searches and linked references. Sources include, but are not limited to UN reports on economic trends, WHO reports and brochures pertaining to health trends, company websites and brochures, newspaper articles, and think-tank white papers.
+
+
+### Academic literature
+
+In order to gauge research attention and focus on FDI and CSR insofar as they affect Mozambique and malaria, four systematic searches were carried out using the EBSCOhost and NCBI/pubmed databases. Our search queries are detailed below:
+
+1. `"(malaria) and (corporate social responsibility)"` (no results found in EBSCO)
+2. `"(malaria) and (foreign direct investment)"`
+3. `"(mozambique) and (corporate social responsibility)"` (no resuts found in EBSCO)
+4. `"(mozambique) and (foreign direct investment)"`
+
+
+# Results
+
+
+## Quantitiative datasets pertaining to FDI and CSR in Mozambique
 
 ### Massive increase in FDI
 
@@ -214,13 +293,16 @@ g1 <-
          aes(x = year, y = value)) +
     geom_line() +
     facet_grid(.~key) +
-    theme_bw()
+    theme_bw() +
+  theme(strip.text = element_text(size=5))
 g2 <- 
   ggplot(data = temp[temp$key %in% unique(sort(temp$key))[3:4],], 
          aes(x = year, y = value)) +
     geom_line() +
     facet_grid(.~key) +
-    theme_bw()
+    theme_bw() +
+   theme(strip.text = element_text(size=5))
+
 multiplot(g1, g2)  
 ```
 
@@ -537,53 +619,33 @@ ggplot(data = moz2_fortified,
 
 ```
 
-# Systematic review of FDI and CSR in health research
 
-## Search
+## Systematic review
 
-```{r}
-# PERFORM PUBMED SEARCH
-source('search_pubmed.R')
+### Grey literature
 
-if('search_results.RData' %in% dir()){
-  load('search_results.RData')
-} else {
-  csr_results <- pubmed(start_year = 2000,
-                         end_year = 2016,
-                         search_topic = '(malaria) and (corporate social responsibility)',
-                         counts_only = FALSE,
-                         n_records = 5000)  
-  fdi_results <- pubmed(start_year = 2000,
-                       end_year = 2016,
-                       search_topic = '(malaria) and (foreign direct investment)',
-                       counts_only = FALSE,
-                       n_records = 5000)  
-    moz_csr_results <- pubmed(start_year = 2000,
-                     end_year = 2016,
-                     search_topic = '(mozambique) and (corporate social responsibility)',
-                     counts_only = FALSE,
-                     n_records = 5000)  
-  moz_fdi_results <- pubmed(start_year = 2000,
-                     end_year = 2016,
-                     search_topic = '(mozambique) and (foreign direct investment)',
-                     counts_only = FALSE,
-                     n_records = 5000)  
-  save(csr_results,
-       fdi_results,
-       moz_csr_results,
-       moz_fdi_results,
-       file = 'search_results.RData')
-}
+#### Grey literature search strategy
 
-```
+We devised 2 simple search queries, and use www.google.com and www.bing.com to retrieve results. The queries were:
 
+1. `Mozambique foreign direct investment malaria`
+2. `Mozambique corporate social responsibility malaria`
 
-In order to gauge research attention and focus on FDI and CSR insofar as they affect Mozambique and malaria, four systematic searches were carried out using the EBSCOhost and NCBI/pubmed databases. Our search queries are detailed below:
+#### Grey literature search results
 
-1. `"(malaria) and (corporate social responsibility)"`
-2. `"(malaria) and (foreign direct investment)"`
-3. `"(mozambique) and (corporate social responsibility)"`
-4. `"(mozambique) and (foreign direct investment)"`
+Google returned 266,000 results for the former query, and 240,000 for the latter (506,000 in total); Bing returned 4,620 and 20,900, respectively. We screened the top 50 results from both services (a total of 100 items) for both queries For the former, of the 100 items identified, 33 were identical in both search engines (yielding a total of 67 unique items); in the latter, 39 were identical (yielding a total of 61 unique items). 
+
+\begin{center}
+\includegraphics[width=400pt]{img/prisma_grey.png}
+\end{center}
+
+#### Grey literature synthesis
+
+Our grey literature review returned relatively little information which was not readily available in those sources uncovered in the data review and systematic review. Very few foreign companies operating in Mozambique have any publicly available information regarding corporate social responsibility activities. 
+
+One notable exception is the Nando's-lead Goodbye Malaria Trust, an umbrella organization which inclues a development impact bond, the Goodbye Malaria initiative, and partnerships with several other foreign firms operating in Mozambique (more details here).
+
+### Academic literature
 
 Our search is outlined in the below PRISMA-based diagram.
 
@@ -591,7 +653,188 @@ Our search is outlined in the below PRISMA-based diagram.
 \includegraphics[width=400pt]{img/prisma.png}
 \end{center}
 
-## Qualitative synthesis
+The below table shows the results retrieved for the systematic review. Full article information is in the bibliography
+
+```{r}
+search_results <-
+  pubmed_results %>%
+  mutate(source = 'Pubmed') %>%
+  dplyr::select(source, year, title, type, `last _author_last_name`) %>%
+  rename(author = `last _author_last_name`)
+
+# Manually add in Elisa's search results
+econ_results <-
+  data_frame(source = rep('EBSCOhost', 20),
+             year = NA,
+             title = NA,
+             type = NA,
+             author = NA)
+econ_results[1,2:5] <- c(2014, 
+                         'A Critical Review of FDI Inflows and Economic Growth in Low-Income SADC Countries: Prospects and Challenges',
+                         'FDI MOZ',
+                         'Mahembe')
+econ_results[2,2:5] <- c(2000, 'Administrative barriers to foreign investment: Reducing red tape in Africa', 'FDI MOZ', 'Emery')
+econ_results[3,2:5] <- c(2012,
+                         'Attracting Foreign Direct Investment in Developing Countries: Determinants and Policies-A Comparative Study between Mozambique and China',
+                         'FDI MOZ', 'Tembe')
+econ_results[4,2:5] <- c(2013,
+                         'Contemporary Processes of Large-Scale Land Acquisition in Sub-Saharan Africa: Legal Deficiency or Elite Capture of the Rule of Law?',
+                         'FDI MOZ', 'German')
+econ_results[5,2:5] <- c(2012,
+                         'Corruption and Multinational Companies Entry Modes--Do Linguistic and Historical Ties Matter?',
+                         'FDI MOZ', 'Grande')
+econ_results[6,2:5] <- c(2014,
+                         'Determining the Nature and Extent of Spillovers: Empirical Assessment',
+                         'FDI MOZ', 'Winkler')
+econ_results[7,2:5] <- c(1999, 'Foreign Direct Investment in Africa: Policies Also Matter',
+                         'FDI MOZ', 'Morisset')
+econ_results[8,2:5] <- c(2002,
+                         'Foreign Direct Investment in Africa--Some Case Studies',
+                         'FDI MOZ', 'Bassu')
+econ_results[9,2:5] <- c(2014,
+                         'Growth, Capital Accumulation and Economic Porosity in Mozambique: Social Losses, Private Gains',
+                         'FDI MOZ', 'Castel-Branco')
+econ_results[10,2:5] <- c(2007,
+                          'Linkage Between foreign Direct Investment, Trade and Trade Policy: An Economic Analysis with Application to the Food Sector in OECD Countries and Case Studies in Ghana, Mozambique, Tunisia and Uganda',
+                          'FDI MOZ', 
+                          'Wilson')
+econ_results[11,2:5] <- c(2012,
+                          'Mining FDI and Infrastructure Development on Africas East Coast: Examining the Recent Experience of Tanzania and Mozambique',
+                          'FDI MOZ',
+                          'Robbins')
+econ_results[12,2:5] <- c(2013,
+                          'Potential and actual FDI spillovers in global value chains: the role of foreign investor characteristics, absorptive capacity and transmission channels',
+                          'FDI MOZ',
+                          'Winkler')
+econ_results[13,2:5] <- c(2004,
+                          'Regional integration, FDI and competitiveness in southern Africa',
+                          'FDI MOZ',
+                          'Goldstein')
+econ_results[14,2:5] <- c(2014,
+                          'Sector Case Study: Mining',
+                          'FDI MOZ',
+                          'Barnard')
+econ_results[15,2:5] <- c(2011,
+                          'Strategic Privatisation: Rehabilitating the Mozambican Sugar Industry',
+                          'FDI MOZ',
+                          'Buur')
+econ_results[16,2:5] <- c(2016,
+                          'The Economics and Politics of Local Content in African Extractives: Lessons from Tanzania, Uganda and Mozambique',
+                          'FDI MOZ',
+                          'Hansen')
+econ_results[17,2:5] <- c(2002,
+                          'The Role of FDI in Economic Development',
+                          'FDI MOZ',
+                          'Bjorvatn')
+econ_results[18,2:5] <- c(2010,
+                          'Uncovering Trends in the Accumulation of Technological Capabilities and Skills in the Mozambican Manufacturing Sector',
+                          'FDI MOZ',
+                          'Warren-Rodriguez')
+econ_results[19,2:5] <- c(2009,
+                          'Public Governance, Health and Foreign Direct Investment in Sub-Saharan Africa',
+                          'FDI Malaria',
+                          'Azemar')
+econ_results[20,2:5] <- c(2014,
+                          'Sector Case Study: Agribusiness',
+                          'FDI MOZ',
+                          'Barnard')
+
+# Combine all results
+econ_results$year <- as.numeric(as.character(econ_results$year))
+search_results <-
+  bind_rows(search_results,
+            econ_results)
+
+# Clean up
+names(search_results) <- Hmisc::capitalize(names(search_results))
+search_results$Author <- paste0(search_results$Author, ', et al')
+
+# Make title shorter
+add_n <- function(x, n = 20){
+  nc <- nchar(x)
+  if(nc < (n+15)){
+    return(x)
+  } else {
+    starts <- seq(1, nc, n)
+  stops <- c(seq(n, nc, n), nc)
+  out <- list()
+  for (i in 1:length(starts)){
+    while(stops[i] <= nc &
+          substr(x, stops[i], stops[i]) != ' '){
+      stops <- stops + 1
+    }
+    out[[i]] <- substr(x = x, start = starts[i], stop = stops[i])
+        while(!is.na(starts[i+1]) &
+              starts[i + 1] <= stops[i]){
+      starts[i + 1] <- starts[i + 1] +1
+    }
+  }
+  out <- out[!out == '']
+  final <- ''
+  for (i in 1:(length(out) -1)){
+    final <- paste0(final, trimws(out[[i]], 'both'), '\n', collapse = '')
+  }
+  final <- paste0(final, out[[length(out)]])
+  return(final)
+  
+  }
+}
+
+# Make short funtion
+make_short <- function(x, n = 20){
+  if(nchar(x) < n){
+    return(x)
+  } else {
+  return(paste0(substr(x, 1, n), '...', collapse = ''))
+  }
+}
+for (s in 1:nrow(search_results)){
+  search_results$Title[s] <- 
+    make_short(search_results$Title[s])
+    # add_n(search_results$Title[s], n = 60)
+}
+search_results$Year <- as.character(search_results$Year)
+search_results <- search_results %>% arrange(Source, Type)
+```
+
+
+```{r, results = 'asis'}
+# kable(search_results)
+options(xtable.comment = FALSE)
+print(xtable(search_results),
+      size="\\fontsize{6pt}{7pt}\\selectfont",
+      include.rownames = FALSE,
+      include.colnames = TRUE,
+      caption.placement = "top",
+      comment=FALSE,
+      floating=FALSE,
+      tabular.environment='longtable')
+```
+
+The below chart shows our systematically retried publications by date. What is most striking is how little academic attention has been given to CSR, with none given to the intersection of CSR and malaria.
+
+```{r}
+x <- search_results %>%
+  group_by(Year = as.numeric(Year), Type) %>%
+  tally
+
+cols <- colorRampPalette(brewer.pal(n = 9, 'Spectral'))(length(unique(x$Type)))
+ggplot(data = x,
+       aes(x = Year,
+           y = n)) +
+  geom_bar(color = 'darkgrey',
+           stat = 'identity',
+           position = 'stack',
+           aes(#group = Type,
+                 fill = Type)) +
+  scale_fill_manual(name = 'Type', values = cols) +
+  theme_bw() +
+  labs(y = 'Articles',
+       title = 'Systematic review articles by publication date')
+```
+
+
+### Qualitative synthesis of systematic review of academic literature
 
 The literature is largely clear on two points: (1) that economic growth in Mozambique has been fueled in large part by foreign direct investment, and (2) that economic growth has been accompanied by a rapid decrease in malaria morbidity and mortality. There is no clear consensus regarding the extent to which the former is a result of the latter, and researchers disagree on how much of a role FDI has played in improving the social and economic conditions of Mozambicans.
 
@@ -606,8 +849,9 @@ However, the re-direction or resource rents to CSR is complicated. If coerced (t
 In summary, Mozambique's high ratio of FDI to GDP and general allowance of "porous" foreign investment represents an opportunity for scaling up the private sector's engagement with public health, as a means to offset the lack of social benefits that traditional FDI has entailed. A coercive (tax-based) approach to scaling up this engagement may lead to a withdrawl of FDI from the country. The alternative, an increase in CSR, is a possible route for creating synergies, particular in the case of malaria elimination.
 
 
+# Discussion
 
-# Scaling up malaria control through CSR: opportunity and risk
+## Scaling up malaria control through CSR: opportunity and risk
 
 ### Opportunity  
 
