@@ -16,7 +16,7 @@ Joe Brew, Elisa Sicuri, and Celine Aerts.
 
 ### Academic literature
 
-To reproduce the results of the systematic review, follow the search parameters described in the "Academic Literature" sub-section of the "Systematic Review" section of the paper. The bibliography for the results retrieved is at [bibliography.bib](bibliography.bib). Access to both PubMed and EBSCOHost is required.
+To reproduce the results of the systematic review, follow the search parameters described in the "Academic Literature" sub-section of the "Systematic Review" section of the paper. The bibliography for the results retrieved is at [library.bib](library.bib). Access to both PubMed and EBSCOHost is required.
 
 ### Grey literature
 
