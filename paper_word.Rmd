@@ -159,6 +159,60 @@ In order to gauge research attention and focus on FDI and CSR insofar as they af
 
 ## Quantitiative datasets pertaining to FDI and CSR in Mozambique
 
+
+
+### Sources of FDI in Mozambique
+
+```{r}
+srcs <- readxl::read_excel('data/data.imf.orgSLASHregular.aspx?key=60564262.xls', skip = 4)
+# Rename columns
+srcs <- srcs[,1:3]
+srcs <- srcs[2:nrow(srcs),]
+names(srcs) <- c('from_country', 'inward', 'outward')
+# Make numberic
+srcs <- data.frame(srcs)
+for (j in 2:3){
+  this_column <- as.numeric(as.character(gsub('.', '', srcs[,j], fixed = TRUE)))
+  srcs[,j] <- this_column
+}
+srcs <- srcs %>%
+  filter(from_country != 'World')
+
+# Get amount by inward
+x <- srcs %>%
+  arrange(desc(inward)) %>%
+  filter(!is.na(inward) & inward > 0) %>%
+  mutate(from_country = ifelse(from_country == 'China, P.R.: Mainland',
+                               'China',
+                               ifelse(from_country == 'United Arab Emirates',
+                                      'U.A.E.',
+                                      ifelse(from_country == 'United Kingdom',
+                                             'U.K.',
+                                             from_country)))) %>%
+  mutate(from_country = factor(from_country, levels = from_country))
+```
+
+According to the IMF, `r nrow(x)` countries had foreign direct investment in Mozambique as of the end of 2015. The below chart shows the top 10 countries ranked by amount invested in Mozambique.
+
+```{r}
+ggplot(data = x[1:10,],
+       aes(x = from_country,
+           y = inward)) +
+  geom_bar(stat = 'identity',
+           alpha = 0.6,
+           fill = 'darkblue') +
+  labs(x = 'Source of investment',
+       y = '2015 USD, Millions',
+       title = 'Sources of FDI in Mozambique',
+       subtitle = 'By investor country') +
+  theme_bw() +
+    theme(axis.text.x = element_text(angle = 90)) 
+```
+
+What stands out is the presence of many "non-Western" countries in the top 10. Though data are not available over time (ie, we cannot make temporal comparisons), the landscape of investment 20 years prior would have been both (a) far smaller and (b) primarily composed of western countries.
+
+
+
 ### Massive increase in FDI
 
 Following independence (1974), Mozambique saw two decades of low and unsteady foreign investment, largely due to the civil war (which did not end until 1992).  Thereafter, foreign investment began a steady increase but leveled off by the late 1990s.  However, the discovery of novel sources of oil and gas set off a new spur of investments beginning in 2007, and continuing through last year.  From 2010 to 2013, foreign direct investment grew from 1.26 to 6.70 billion USD, a more than five-fold increase [@wbdata].  
@@ -233,6 +287,8 @@ db <- read_excel('data/doing_business.xls')
 # Clean up columns
 db <- data.frame(db)
 macro_names <- names(db)
+macro_names <- ifelse(grepl('X__', macro_names), 'Var', macro_names)
+
 for (j in 1:length(macro_names)){
   number <- j
   while(grepl('Var', macro_names[number])){
