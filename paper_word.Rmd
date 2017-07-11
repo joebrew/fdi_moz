@@ -159,43 +159,61 @@ In order to gauge research attention and focus on FDI and CSR insofar as they af
 
 ## Quantitiative datasets pertaining to FDI and CSR in Mozambique
 
-
-
 ### Sources of FDI in Mozambique
 
 ```{r}
-srcs <- readxl::read_excel('data/data.imf.orgSLASHregular.aspx?key=60564262.xls', skip = 4)
-# Rename columns
-srcs <- srcs[,1:3]
-srcs <- srcs[2:nrow(srcs),]
-names(srcs) <- c('from_country', 'inward', 'outward')
-# Make numberic
-srcs <- data.frame(srcs)
-for (j in 2:3){
-  this_column <- as.numeric(as.character(gsub('.', '', srcs[,j], fixed = TRUE)))
-  srcs[,j] <- this_column
+# Define function for reading fdi data from imf
+read_imf <- function(file){
+  srcs <- readxl::read_excel(file, skip = 4)
+  # Rename columns
+  srcs <- srcs[,1:3]
+  srcs <- srcs[2:nrow(srcs),]
+  names(srcs) <- c('from_country', 'inward', 'outward')
+  # Make numberic
+  srcs <- data.frame(srcs)
+  for (j in 2:3){
+    this_column <- as.numeric(as.character(gsub('.', '', srcs[,j], fixed = TRUE)))
+    srcs[,j] <- this_column
+  }
+  srcs <- srcs %>%
+    filter(from_country != 'World')
+  
+  # Get amount by inward
+  x <- srcs %>%
+    arrange(desc(inward)) %>%
+    filter(!is.na(inward) & inward > 0) %>%
+    mutate(from_country = ifelse(from_country == 'China, P.R.: Mainland',
+                                 'China',
+                                 ifelse(from_country == 'United Arab Emirates',
+                                        'U.A.E.',
+                                        ifelse(from_country == 'United Kingdom',
+                                               'U.K.',
+                                               from_country)))) #%>%
+    # mutate(from_country = factor(from_country, levels = from_country))
+  return(x)
 }
-srcs <- srcs %>%
-  filter(from_country != 'World')
 
-# Get amount by inward
-x <- srcs %>%
-  arrange(desc(inward)) %>%
-  filter(!is.na(inward) & inward > 0) %>%
-  mutate(from_country = ifelse(from_country == 'China, P.R.: Mainland',
-                               'China',
-                               ifelse(from_country == 'United Arab Emirates',
-                                      'U.A.E.',
-                                      ifelse(from_country == 'United Kingdom',
-                                             'U.K.',
-                                             from_country)))) %>%
-  mutate(from_country = factor(from_country, levels = from_country))
+years <- 2009:2015
+results_list <- list()
+for (i in 1:length(years)){
+  this_year <- years[i]
+  this_data <- read_imf(paste0('data/imf_inward_direct_investment_positions/', this_year, '.xls')) %>%
+    mutate(year = this_year)
+  results_list[[i]] <- this_data
+}
+x <- bind_rows(results_list)
 ```
 
-According to the IMF, `r nrow(x)` countries had foreign direct investment in Mozambique as of the end of 2015. The below chart shows the top 10 countries ranked by amount invested in Mozambique.
+According to the IMF, `r x$from_country[x$year == 2015 & !is.na(x$inward)]` countries had foreign direct investment in Mozambique as of the end of 2015. The below chart shows the top 10 countries ranked by amount invested in Mozambique.
 
 ```{r}
-ggplot(data = x[1:10,],
+last_year <- x %>%
+  filter(year == 2015)
+last_year <- last_year %>% 
+  arrange(desc(inward)) %>%
+  mutate(from_country = factor(from_country, levels = as.character(from_country)))
+last_year <- last_year[1:10,]
+ggplot(data = last_year,
        aes(x = from_country,
            y = inward)) +
   geom_bar(stat = 'identity',
@@ -209,7 +227,28 @@ ggplot(data = x[1:10,],
     theme(axis.text.x = element_text(angle = 90)) 
 ```
 
-What stands out is the presence of many "non-Western" countries in the top 10. Though data are not available over time (ie, we cannot make temporal comparisons), the landscape of investment 20 years prior would have been both (a) far smaller and (b) primarily composed of western countries.
+What stands out is the presence of many "non-Western" countries in the top 10. Though data are not available over time (ie, we cannot make temporal comparisons), the landscape of investment 20 years prior would have been both (a) far smaller and (b) primarily composed of western countries, especially given that Mozambique emerged so late from civil war (1994).
+
+If we examine the same IMF data over time, we can see that even in the short period for which data is available (2009 to 2015) there is a general upward trend, but that the trend is steepest in the last two years from China:
+
+```{r}
+cols <- colorRampPalette(brewer.pal(n = 9, name = 'Spectral'))(nrow(last_year))
+cols[3] <- 'black'
+ggplot(data = x %>%
+         filter(from_country %in% last_year$from_country),
+       aes(x = year,
+           y = inward,
+           group = from_country,
+           color = from_country)) +
+  geom_line() +
+  scale_color_manual(name = 'Country',
+                     values = cols) +
+labs(x = 'Source of investment',
+       y = '2015 USD, Millions',
+       title = 'Sources of FDI in Mozambique over time',
+       subtitle = 'By investor country') +
+  theme_bw() 
+```
 
 
 
