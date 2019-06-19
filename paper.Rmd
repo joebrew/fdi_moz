@@ -8,9 +8,8 @@ output:
       in_header: preamble.sty
 fig_width: 4
 fig_height: 2.6
-bibliography: library.bib
+bibliography: fdi_moz.bib
 ---
-
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, comment = NA, error= FALSE }
 # No scientific notation
@@ -106,7 +105,7 @@ Foreign direct investment (FDI) in Mozambique has increased rapidly in the last 
 
 Mozambique is a Southern-East African country with a surface area of nearly 800,000 m2 (more than 3 times that of the United Kingdom) and a population of nearly 30 million inhabitants. Though low-income, Mozambique experienced an upward trend in gross domestic product (GDP) per capita from approximately 200 USD in the late 90s to 623 in 2014, followed by a steep decrease in 2015 down to 382 in 2016 [@doingbusiness].
 
-Mozambique's economic growth up to 2014 was facilitated by the government's open policy towards foreign direct investment (FDI), a plentiful supply of natural resources [@Rogers], and relatively inexpensive labor. Foreign investment in Mozambique is largely geared towards the export market, and heavily concentrated. 63% of exports come from aluminum, electricity, minerals, and gas, with each sector displaying high degrees of concentration (greater than 50% of the export share of the previous four industries are attributable to one company) [@Sutton2014]. The total number of foreign enterprises operating in Mozambique is not ascertainable, but in both quantity and diversity of sources, FDI has increased dramatically in recent years [@Sutton2014]. Mozambique was the Sub-Saharan African country with the greatest increase in FDI (defined by the World Bank as cross-border investment to establish a lasting interest) inflows from 2006 to 2014, registering a boom between 2010 and 2014 of about 5000 million USD [@Unctad2012].
+Mozambique's economic growth up to 2014 was facilitated by the government's open policy towards foreign direct investment (FDI), a plentiful supply of natural resources [@Rogers], and relatively inexpensive labor. These factors combined to push Maputo (Mozambique's capital) into the top-20 African countries in terms of gross FDI [@africa2018]. Its location (a large, eastward-facing coastline, proximity to rapidly developing South Africa, and integration into trade corridor and zones such as those with Zimbabwe [@africa2018] and the Southern African community as a whole [@Asiedu_2005]) are favorable to foreign investment, which is largely geared towards the export market, and heavily concentrated. 63% of exports come from aluminum, electricity, minerals, and gas, with each sector displaying high degrees of concentration (greater than 50% of the export share of the previous four industries are attributable to one company) [@Sutton2014]. The total number of foreign enterprises operating in Mozambique is not ascertainable, but in both quantity and diversity of sources, FDI has increased dramatically in recent years [@Sutton2014]. Mozambique was the Sub-Saharan African country with the greatest increase in FDI (defined by the World Bank as cross-border investment to establish a lasting interest) inflows from 2006 to 2014, registering a boom between 2010 and 2014 of about 5000 million USD [@Unctad2012].
 
 The impact of FDI on economic growth and other economic indicators has been largely assessed [@Alfaro_2006] [@Almfraji_2014] [@World1999]. As FDI has been found to improve working conditions in low-income countries and, consequently, population ability to pay [@Bloom2008], they are likely to improve access to healthcare and, therefore, improve health [@Feenstra]. However, there is some evidence that FDI may have adverse effects on health, through increasing the consumption of “bads” such as tobacco and alcohol and the level of harmful pollution [@Pazienza_2015] [@Shahbaz_2015]. It has been recently assessed that FDIs are weakly associated with a marginal benefit in adults’ life expectancy in low and middle income countries (no impact has been found on children’s health), yet investments into the secondary sector (for being polluting) have been found potentially harmful [@Burns_2017].
 
@@ -276,7 +275,7 @@ ggplot(data = last_year,
     theme(axis.text.x = element_text(angle = 90)) 
 ```
 
-What stands out is the presence of many "non-Western" countries in the top 10. Though reliable data only go as far back as 2009, the landscape of investment 20 years prior would have been both (a) far smaller and (b) primarily composed of western countries, especially given that Mozambique emerged so late from civil war (1994). Though as of 2015, China did not figure in the top 10 FDI countries in Mozambique, its upward trend is notable, with approximately 1.5 million USD invested in 2010 to nearly 100 million by 2015 (a 60-fold increase).
+What stands out is the presence of many "non-Western" countries in the top 10. Though reliable data only go as far back as 2009, the landscape of investment 20 years prior would have been both (a) far smaller and (b) primarily composed of western countries, especially given that Mozambique emerged so late from civil war (1994). As of 2014, Chinese capital had entered into 52 countries in Africa [@africa2018], and though more recent data are not available, it's likely that this figure has grown since then. Though as of 2015, China did not figure in the top 10 FDI countries in Mozambique, its upward trend is notable, with approximately 1.5 million USD invested in 2010 to nearly 100 million by 2015 (a 60-fold increase). As of 2017, 3.2% of Chinese FDI flows went to Mozambique [@He_2015]. Though much of the growth is fueled by centralized State actors, an increasing number of provincial and decentralized investors are playing a role in African FDI [@Gu_2016].
 
 ```{r, eval = FALSE}
 china <- x %>%
@@ -378,6 +377,7 @@ db <- read_excel('data/doing_business.xls')
 # Clean up columns
 db <- data.frame(db)
 macro_names <- names(db)
+macro_names <- gsub('...', 'X__...', macro_names, fixed = TRUE)
 macro_names <- ifelse(grepl('X__', macro_names), 'Var', macro_names)
 
 for (j in 1:length(macro_names)){
@@ -561,16 +561,19 @@ The homogeneity in growth comes somewhat as a surprise, as it defies the general
 #####
 
 # Get columns for coordinates
-temp$x <- coordinates(temp)[,1]
-temp$y <- coordinates(temp)[,2]
+temp@data$x <- coordinates(temp)[,1]
+temp@data$y <- coordinates(temp)[,2]
+
+# Get a better id
+temp@data$id <-
+  unlist(lapply(strsplit(gsub('MOZ.', '', temp@data$GID_1), '_'), function(x){x[1]}))
 
 # Fortify
 temp_fort <- fortify(temp, id = 'ID_0')
 
 # Bring in gdp data to fortified map
 temp_fort <- left_join(x = temp_fort,
-                       y = temp@data %>%
-                         mutate(id = as.character(ID_1)))
+                       y = temp@data)
 
 # Gather by year
 temp_fort <- gather(temp_fort, year, gdp, y2009:y2000)
@@ -709,6 +712,8 @@ proj4string(r) <- proj4string(moz1)
 # # Convert raster to polygons
 # rtp <- rasterToPolygons(r)
 # rtp@data$id <- 1:nrow(rtp@data) 
+
+
 ```
 
 
@@ -765,7 +770,7 @@ Our grey literature review returned relatively little information which was not 
 
 Corporate social responsibility in Mozambique is new in nomenclature, but activities which could be classified as CSR have existed for decades. The number of firms actively engaging in CSR cannot be ascertained (given the large and ever-changing number of small businesses), but virtually all of the largest firms, both foreign and domestic, have a CSR component.  
 
-Firms with CSR activities are often large and foreign.  Among the largest "key players" in Mozambican CSR are Coca-Cola, British Petroleum and Colgate-Palmolive.  State conglomerates, such as Águas de Moçambique and Electricidade de Moçambique, also participate in CSR activities [@Compact2007]. Large communications firms, such as Vodacom and MCEL, and banks (BIM and BCI) have a CSR component, but generally focus on culture, environment and sport, avoiding activities which could either complement or conflict with the health sector [@Kaufmann_2015].
+Firms with CSR activities are often large and foreign.  Among the largest "key players" in Mozambican CSR are Coca-Cola, British Petroleum and Colgate-Palmolive.  State conglomerates, such as Águas de Moçambique and Electricidade de Moçambique, also participate in CSR activities [@Compact2007]. Large communications firms, such as Vodacom and MCEL, and banks (BIM and BCI) have a CSR component, but generally focus on culture, environment and sport, avoiding activities which could either complement or conflict with the health sector. Much of CSR in Mozambique is basic servcies only, a phenomenon Kaufmann described as "CSR towards compliance" as opposed to "beyond compliance" [@Kaufmann_2015].
 
 Among major foreign companies, those operating in extraction - particularly mining - appear to be the most involved with malaria. BHP Billiton has been active in vector control support to the governments of Mozambique, Swaziland, and South Africa, particularly in the early 2000s [@bhp]. Kropfmuhl AG and Vale, also mining companies, have carried out CSR related to both community development and malaria control in Northern Mozambique [@Kaufmann_2015].
 
@@ -979,7 +984,7 @@ In summary, Mozambique's high ratio of FDI to GDP and general allowance of "poro
 # Discussion
 
 The intensity of CSR activity seems to closely track FDI, but generally avoids malaria control. 
-The few malaria-related CSR projects in recent years has come in large, "mega-projects" whose well-publicized malaria abatement activities are profit-driven [@Mouzin2011] or whose primary aim is not profit-related [@Han]. Though the former is often portrayed as a "win-win" for business and public health, the latter also offers tangible benefits for private industry, and should be understood as operating under the same conditions and with the same motivations. To the extent that most CSR activity has avoided the health sector (including malaria) in favor of cultural, environmental, education and more general "development" activities, it is reasonable to assume that this may be due to the perceived costs of malaria control, lack of perceived PR benefits, the government and NGO's predominant role in the area, as well as the "opt-in" nature and privacy/legal issues generally related to engaging in health-related campaigns.   
+The few malaria-related CSR projects in recent years has come in large, "mega-projects" whose well-publicized malaria abatement activities are profit-driven [@Mouzin2011] or whose primary aim is not profit-related [@Han]. This should come as no surprise given that "mega-projects" make up a majority of FDI to Mozambique (albeit declining slightly in recent years) [@Unctad2012]. Though the former is often portrayed as a "win-win" for business and public health, the latter also offers tangible benefits for private industry, and should be understood as operating under the same conditions and with the same motivations. To the extent that most CSR activity has avoided the health sector (including malaria) in favor of cultural, environmental, education and more general "development" activities, it is reasonable to assume that this may be due to the perceived costs of malaria control, lack of perceived PR benefits, the government and NGO's predominant role in the area, as well as the "opt-in" nature and privacy/legal issues generally related to engaging in health-related campaigns.   
 
 ## Scaling up malaria control through CSR: opportunity and risk
 
@@ -993,7 +998,7 @@ The historical absence of malaria-related CSR represents an opportunity for comp
 
 Scaling up CSR while also encouraging its redirection towards malaria control is not without risks. The most notable downfall of this approach is the potential for the inadvertent dependence on the private sector for what is essentially a public good.  Were CSR targeting malaria control to reach significant levels (and the government were to enact a correspoding redirection of funds towards the financing of other health areas), then a situation would be created in which the public sector had essentially divested from a public good. This would be unwise and dangerous.  
 
-A secondary risk is that increased private sector involvement in malaria control could cause a decrease in public sector _competence_ in the prevention and treatment of malaria. This could have negative consequences in the case of either a financial or economic crisis (in which CSR activity would be curtailed) or an increase in malarial activity. By the same token, CSR involvement in malaria control could potentially portend, at least initially, less effective interventions. Private firms' incentives, though aligned with the public's in terms of malaria, are not identical, and pressures from shareholders and for positive public perception might motivate malaria control strategies which do not necessarily carry with them the most recent scientific knowledge.  
+A secondary risk is that increased private sector involvement in malaria control could cause a decrease in public sector _competence_ in the prevention and treatment of malaria. This could have negative consequences in the case of either a financial or economic crisis (in which CSR activity would be curtailed) or an increase in malarial activity. By the same token, CSR involvement in malaria control could potentially portend, at least initially, less effective interventions. Private firms' incentives, though aligned with the public's in terms of malaria, are not identical, and pressures from shareholders and for positive public perception might motivate malaria control strategies which do not necessarily carry with them the most recent scientific knowledge. The methods by which private initiatives could contribute to malaria elimination and control while at the same time only "complementing" (rather than "substituting") State activities is not entirely clear, and would require significant organization [@Kaufmann_2015].  
 
 A third risk is a lack of coordination.  Both in terms of logistical activities as well as biological realities (drug and insecticide resistance, etc.), coordination of malaria control activities is absolutely essentially if Mozambique is going to make the transition to eradication.  The issue of coordination could be solved through an activities and outcomes reporting/surveillance structure (necessarily managed by the state), but compliance could be problematic.
 
@@ -1003,7 +1008,7 @@ A final risk is that of volatility. By centralizing malaria control under the au
 
 # Conclusion  
 
-High FDI in Mozambique and growing interest in CSR both call for increased reflection on the private sector's role in the delivery of public goods. A refocusing of CSR expenditures into areas where the need is greatest (specifically, malaria control) could lead to better health and greater profits. This "win-win" for the public and private sectors represents a rare opportunity, which deserves more discourse, research and experimentation.    
+High FDI in Mozambique and growing interest in CSR both call for increased reflection on the private sector's role in the delivery of public goods. A refocusing of CSR expenditures into areas where the need is greatest (specifically, malaria control) could lead to better health and greater profits, and go beyond the perception of superficial CSR which doesn't address core social problems (ie, "green washing") [@Kaufmann_2015]. This "win-win" for the public and private sectors represents a rare opportunity, which deserves more discourse, research and experimentation.    
 
 That said, the growing interest in CSR suggests both that (a) the need for services exist and (b) that corporations (especially foreign firms) have enough excess capital to finance these services. Both of these factors suggest the need for a better-fitting taxation rate, and a more efficient delivery of public services. That said, in the short-term, increasing the efficiency and effectiveness of CSR activity through a re-pivoting towards malaria control should remain a goal.
 
