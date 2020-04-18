@@ -143,10 +143,10 @@ pubmed <- function(start_year = 2014,
     }
     
     # Bind together the results
-    results <- do.call('rbind', results_list)
+    results <- bind_rows(results_list)
     
     # Bind together the abstracts
-    abstracts <- do.call('rbind', abstracts_list)
+    abstracts <- bind_rows(abstracts_list)
     
     # Put into list
     return_object <- 

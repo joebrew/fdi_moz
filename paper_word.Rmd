@@ -160,7 +160,7 @@ if('search_results.RData' %in% dir()){
        moz_fdi_results,
        file = 'search_results.RData')
 }
-pubmed_results <- rbind(csr_results$results %>% mutate(type = 'CSR'),
+pubmed_results <- bind_rows(csr_results$results %>% mutate(type = 'CSR'),
                         fdi_results$results %>% mutate(type = 'FDI'),
                         moz_csr_results$results %>% mutate(type = 'CSR MOZ'))
 

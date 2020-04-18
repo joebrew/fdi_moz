@@ -166,9 +166,9 @@ if('search_results.RData' %in% dir()){
        moz_fdi_results,
        file = 'search_results.RData')
 }
-pubmed_results <- rbind(csr_results$results %>% mutate(type = 'CSR'),
-                        fdi_results$results %>% mutate(type = 'FDI'),
-                        moz_csr_results$results %>% mutate(type = 'CSR MOZ'))
+pubmed_results <- bind_rows(csr_results$results %>% mutate(type = 'CSR | Malaria'),
+                        fdi_results$results %>% mutate(type = 'FDI | Malaria'),
+                        moz_csr_results$results %>% mutate(type = 'CSR | Mozambique'))
 
 ```
 
@@ -210,15 +210,17 @@ if('imf.RData' %in% dir()){
   load('imf.RData')
 } else {
   read_imf <- function(file){
-  srcs <- readxl::read_excel(file, skip = 4)
+  srcs <- readxl::read_excel(file, skip = 5)
   # Rename columns
   srcs <- srcs[,1:3]
-  srcs <- srcs[2:nrow(srcs),]
+  # srcs <- srcs[2:nrow(srcs),]
   names(srcs) <- c('from_country', 'inward', 'outward')
   # Make numberic
   srcs <- data.frame(srcs)
   for (j in 2:3){
-    this_column <- as.numeric(as.character(gsub('.', '', srcs[,j], fixed = TRUE)))
+    # this_column <- as.numeric(as.character(gsub('.', '', srcs[,j], fixed = TRUE)))
+    this_column <- as.numeric(as.character(srcs[,j]))
+    this_column <- ifelse(is.na(this_column), 0, this_column)
     srcs[,j] <- this_column
   }
   srcs <- srcs %>%
@@ -260,10 +262,10 @@ last_year <- x %>%
 last_year <- last_year %>% 
   arrange(desc(inward)) %>%
   mutate(from_country = factor(from_country, levels = as.character(from_country)))
-last_year <- last_year[1:10,]
+last_year <- last_year[1:20,]
 ggplot(data = last_year,
        aes(x = from_country,
-           y = inward)) +
+           y = inward )) +
   geom_bar(stat = 'identity',
            alpha = 0.6,
            fill = 'darkblue') +
@@ -272,7 +274,7 @@ ggplot(data = last_year,
        title = 'Sources of FDI in Mozambique',
        subtitle = 'By investor country') +
   theme_bw() +
-    theme(axis.text.x = element_text(angle = 90)) 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 ```
 
 What stands out is the presence of many "non-Western" countries in the top 10. Though reliable data only go as far back as 2009, the landscape of investment 20 years prior would have been both (a) far smaller and (b) primarily composed of western countries, especially given that Mozambique emerged so late from civil war (1994). As of 2014, Chinese capital had entered into 52 countries in Africa [@africa2018], and though more recent data are not available, it's likely that this figure has grown since then. Though as of 2015, China did not figure in the top 10 FDI countries in Mozambique, its upward trend is notable, with approximately 1.5 million USD invested in 2010 to nearly 100 million by 2015 (a 60-fold increase). As of 2017, 3.2% of Chinese FDI flows went to Mozambique [@He_2015]. Though much of the growth is fueled by centralized State actors, an increasing number of provincial and decentralized investors are playing a role in African FDI [@Gu_2016].
@@ -803,72 +805,72 @@ econ_results <-
              author = NA)
 econ_results[1,2:5] <- c(2014, 
                          'A Critical Review of FDI Inflows and Economic Growth in Low-Income SADC Countries: Prospects and Challenges',
-                         'FDI MOZ',
+                         'FDI | Mozambique',
                          'Mahembe')
-econ_results[2,2:5] <- c(2000, 'Administrative barriers to foreign investment: Reducing red tape in Africa', 'FDI MOZ', 'Emery')
+econ_results[2,2:5] <- c(2000, 'Administrative barriers to foreign investment: Reducing red tape in Africa', 'FDI | Mozambique', 'Emery')
 econ_results[3,2:5] <- c(2012,
                          'Attracting Foreign Direct Investment in Developing Countries: Determinants and Policies-A Comparative Study between Mozambique and China',
-                         'FDI MOZ', 'Tembe')
+                         'FDI | Mozambique', 'Tembe')
 econ_results[4,2:5] <- c(2013,
                          'Contemporary Processes of Large-Scale Land Acquisition in Sub-Saharan Africa: Legal Deficiency or Elite Capture of the Rule of Law?',
-                         'FDI MOZ', 'German')
+                         'FDI | Mozambique', 'German')
 econ_results[5,2:5] <- c(2012,
                          'Corruption and Multinational Companies Entry Modes--Do Linguistic and Historical Ties Matter?',
-                         'FDI MOZ', 'Grande')
+                         'FDI | Mozambique', 'Grande')
 econ_results[6,2:5] <- c(2014,
                          'Determining the Nature and Extent of Spillovers: Empirical Assessment',
-                         'FDI MOZ', 'Winkler')
+                         'FDI | Mozambique', 'Winkler')
 econ_results[7,2:5] <- c(1999, 'Foreign Direct Investment in Africa: Policies Also Matter',
-                         'FDI MOZ', 'Morisset')
+                         'FDI | Mozambique', 'Morisset')
 econ_results[8,2:5] <- c(2002,
                          'Foreign Direct Investment in Africa--Some Case Studies',
-                         'FDI MOZ', 'Bassu')
+                         'FDI | Mozambique', 'Bassu')
 econ_results[9,2:5] <- c(2014,
                          'Growth, Capital Accumulation and Economic Porosity in Mozambique: Social Losses, Private Gains',
-                         'FDI MOZ', 'Castel-Branco')
+                         'FDI | Mozambique', 'Castel-Branco')
 econ_results[10,2:5] <- c(2007,
                           'Linkage Between foreign Direct Investment, Trade and Trade Policy: An Economic Analysis with Application to the Food Sector in OECD Countries and Case Studies in Ghana, Mozambique, Tunisia and Uganda',
-                          'FDI MOZ', 
+                          'FDI | Mozambique', 
                           'Wilson')
 econ_results[11,2:5] <- c(2012,
                           'Mining FDI and Infrastructure Development on Africas East Coast: Examining the Recent Experience of Tanzania and Mozambique',
-                          'FDI MOZ',
+                          'FDI | Mozambique',
                           'Robbins')
 econ_results[12,2:5] <- c(2013,
                           'Potential and actual FDI spillovers in global value chains: the role of foreign investor characteristics, absorptive capacity and transmission channels',
-                          'FDI MOZ',
+                          'FDI | Mozambique',
                           'Winkler')
 econ_results[13,2:5] <- c(2004,
                           'Regional integration, FDI and competitiveness in southern Africa',
-                          'FDI MOZ',
+                          'FDI | Mozambique',
                           'Goldstein')
 econ_results[14,2:5] <- c(2014,
                           'Sector Case Study: Mining',
-                          'FDI MOZ',
+                          'FDI | Mozambique',
                           'Barnard')
 econ_results[15,2:5] <- c(2011,
                           'Strategic Privatisation: Rehabilitating the Mozambican Sugar Industry',
-                          'FDI MOZ',
+                          'FDI | Mozambique',
                           'Buur')
 econ_results[16,2:5] <- c(2016,
                           'The Economics and Politics of Local Content in African Extractives: Lessons from Tanzania, Uganda and Mozambique',
-                          'FDI MOZ',
+                          'FDI | Mozambique',
                           'Hansen')
 econ_results[17,2:5] <- c(2002,
                           'The Role of FDI in Economic Development',
-                          'FDI MOZ',
+                          'FDI | Mozambique',
                           'Bjorvatn')
 econ_results[18,2:5] <- c(2010,
                           'Uncovering Trends in the Accumulation of Technological Capabilities and Skills in the Mozambican Manufacturing Sector',
-                          'FDI MOZ',
+                          'FDI | Mozambique',
                           'Warren-Rodriguez')
 econ_results[19,2:5] <- c(2009,
                           'Public Governance, Health and Foreign Direct Investment in Sub-Saharan Africa',
-                          'FDI Malaria',
+                          'FDI | Malaria',
                           'Azemar')
 econ_results[20,2:5] <- c(2014,
                           'Sector Case Study: Agribusiness',
-                          'FDI MOZ',
+                          'FDI | Mozambique',
                           'Barnard')
 
 # Combine all results
@@ -926,7 +928,7 @@ for (s in 1:nrow(search_results)){
     # add_n(search_results$Title[s], n = 60)
 }
 search_results$Year <- as.character(search_results$Year)
-search_results <- search_results %>% arrange(Source, Type)
+search_results <- search_results %>% arrange(Source, Type) %>% filter(!duplicated(Title))
 ```
 
 
@@ -941,6 +943,7 @@ print(xtable(search_results),
       comment=FALSE,
       floating=FALSE,
       tabular.environment='longtable')
+# save(search_results, file = 'sr.RData')
 ```
 
 The below chart shows our systematically retried publications by date. What is most striking is how little academic attention has been given to CSR, with none given to the intersection of CSR and malaria.
